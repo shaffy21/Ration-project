@@ -13,10 +13,5 @@ This is a frontend web application created to digitize the traditional ration ca
 * **Monthly Quotas:** Displays the exact amount of food grains (Wheat, Rice, Sugar, etc.) allocated to the family.
 * **Passbook / Transactions:** Shows a log of recent monthly collections to keep things transparent.
 
-## Built With:
-* HTML5
-* CSS3 (Custom styling with a dark-theme layout)
 
-## How to open the project locally:
-1. Download or clone this repository.
-2. Double-click on the `index.html` file to run it directly in any web browser.
+
