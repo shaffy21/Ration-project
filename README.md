@@ -1,17 +1,17 @@
-# Digital Ration Card System
+# Ration Distribution and Transparency System
 
-This is a frontend web application created to digitize the traditional ration card system. It provides a clean, user-friendly interface where people can check their digital ration card information, view family member counts, track their monthly grain quotas, and see recent transaction history.
+The main goal of this project is to fix the issues in the traditional ration system by creating a digital, transparent platform. In many places, citizens face problems like incorrect grain weights, fake entries, or lack of clarity regarding their actual monthly quota. This web app digitalizes the entire process so that users can see exactly what they are entitled to and check their real-time transaction logs.
 
 🌐 **Live Link:** https://shaffy21.github.io/Ration-project/
 
 ---
 
-## What this project does:
+## How this system ensures Transparency:
 
-* **Digital Card Display:** Shows cardholder details, card number, and FPS shop info clearly.
-* **Family Details Table:** Lists all registered family members linked to that specific card.
-* **Monthly Quotas:** Displays the exact amount of food grains (Wheat, Rice, Sugar, etc.) allocated to the family.
-* **Passbook / Transactions:** Shows a log of recent monthly collections to keep things transparent.
+* **No Hidden Quotas:** Citizens can see their exact monthly allocation of essential items (Wheat, Rice, Sugar, Kerosene) calculated based on their family members, so dealers cannot give them less grain.
+* **Digital Passbook:** Every transaction, along with the date, item weight, and shop details, is logged directly into the system, preventing fake entries or black marketing by Fair Price Shops (FPS).
+* **Verified Family Data:** Displays a clear list of linked family members to ensure the allocation matches the correct household size.
+
 
 
 
