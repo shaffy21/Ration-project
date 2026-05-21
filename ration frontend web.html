@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RDTAS — Ration Distribution Transparency & Audit System</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#1a7a7a;--teal2:#1d8f8f;--teal3:#239090;--teal-lt:#e6f4f4;--teal-xl:#f0fafa;
+  --navy:#0f2a44;--navy2:#16355a;
+  --bg:#f4f6f9;--surface:#fff;--surface2:#f9fbfb;
+  --border:#dde6e6;--border2:#c8d8d8;
+  --text:#1a2e2e;--text2:#3d5555;--text3:#7a9090;
+  --green:#1e7a46;--green-bg:#eaf5ee;
+  --red:#bf3333;--red-bg:#fdf0f0;
+  --amber:#9a6500;--amber-bg:#fdf6e0;
+  --blue:#1a5c99;--blue-bg:#eaf0f9;
+  --purple:#5c3a9a;--purple-bg:#f3eefa;
+  --shadow:0 1px 4px rgba(15,42,68,.08);
+  --shadow2:0 3px 16px rgba(15,42,68,.12);
+  --r:8px;--rs:5px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Nunito',sans-serif;font-size:14px;color:var(--text);background:var(--bg)}
+
+/* ══ AUTH SCREEN ══════════════════════════════════ */
+#auth-wrap{min-height:100vh;display:flex}
+
+.auth-panel{
+  width:400px;flex-shrink:0;
+  background:linear-gradient(160deg,var(--navy) 0%,#0d3d3d 100%);
+  padding:52px 44px;display:flex;flex-direction:column;position:relative;overflow:hidden;
+}
+.auth-panel::after{
+  content:'';position:absolute;bottom:-60px;left:-60px;
+  width:300px;height:300px;border-radius:50%;
+  background:rgba(26,122,122,.2);pointer-events:none;
+}
+.auth-panel::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:200px;height:200px;border-radius:50%;
+  background:rgba(255,255,255,.04);pointer-events:none;
+}
+.ap-logo{display:flex;align-items:center;gap:13px;margin-bottom:36px;position:relative;z-index:1}
+.ap-icon{width:50px;height:50px;border-radius:12px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:22px}
+.ap-title{font-size:15px;font-weight:800;color:#fff;line-height:1.25}
+.ap-title small{display:block;font-size:11px;font-weight:500;color:rgba(255,255,255,.5);margin-top:2px;letter-spacing:.03em}
+.ap-tagline{font-size:13px;color:rgba(255,255,255,.6);line-height:1.75;margin-bottom:36px;position:relative;z-index:1}
+.ap-creds{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:var(--r);padding:18px;position:relative;z-index:1}
+.ap-creds h4{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.45);margin-bottom:12px}
+.cred-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:12px}
+.cred-row:last-child{border:none;padding-bottom:0}
+.cred-row span{color:rgba(255,255,255,.5)}
+.cred-row code{font-family:'Source Code Pro',monospace;font-size:11px;color:#7eccc0}
+.ap-foot{margin-top:auto;font-size:11px;color:rgba(255,255,255,.3);line-height:1.7;position:relative;z-index:1}
+
+.auth-body{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 24px;background:var(--bg)}
+.auth-card{width:100%;max-width:410px}
+.auth-card h2{font-size:22px;font-weight:800;color:var(--navy);margin-bottom:4px}
+.auth-card .sub{font-size:13px;color:var(--text3);margin-bottom:26px}
+
+/* Role tabs */
+.rtabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:22px}
+.rtab{border:1.5px solid var(--border);border-radius:var(--rs);background:var(--surface);padding:10px 4px;text-align:center;cursor:pointer;font-size:12px;font-weight:700;color:var(--text3);transition:all .13s;user-select:none}
+.rtab em{display:block;font-size:20px;font-style:normal;margin-bottom:3px}
+.rtab:hover{border-color:var(--teal2);color:var(--teal)}
+.rtab.on{background:var(--teal-lt);border-color:var(--teal);color:var(--teal)}
+
+/* Field */
+.fl{margin-bottom:14px}
+.fl label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);margin-bottom:5px}
+.fl input,.fl select,.fl textarea{
+  width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--rs);
+  background:var(--surface);color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;
+  outline:none;transition:border .13s,box-shadow .13s;
+}
+.fl input:focus,.fl select:focus,.fl textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,122,122,.1)}
+.fl textarea{resize:vertical;min-height:80px}
+.pw{position:relative}.pw input{padding-right:38px}
+.pw-eye{position:absolute;right:11px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--text3);font-size:14px;user-select:none}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 20px;border-radius:var(--rs);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid transparent;transition:all .13s}
+.btn-teal{background:var(--teal);color:#fff;border-color:var(--teal)}
+.btn-teal:hover{background:var(--teal2)}
+.btn-navy{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn-navy:hover{background:var(--navy2)}
+.btn-out{background:transparent;border-color:var(--border);color:var(--text2)}
+.btn-out:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-lt)}
+.btn-green{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-red{background:var(--red);color:#fff;border-color:var(--red)}
+.btn-w{width:100%;padding:12px;font-size:14px}
+.btn-sm{padding:6px 13px;font-size:12px}
+.btn-xs{padding:4px 9px;font-size:11px}
+
+.err-line{display:none;font-size:12px;color:var(--red);background:var(--red-bg);border-left:3px solid var(--red);padding:8px 12px;border-radius:3px;margin-top:6px}
+.switch-txt{text-align:center;margin-top:14px;font-size:13px;color:var(--text3)}
+.switch-txt a{color:var(--teal);cursor:pointer;font-weight:700}
+
+/* Steps */
+.steps{display:flex;margin-bottom:24px}
+.step{flex:1;text-align:center;position:relative}
+.step:not(:last-child)::after{content:'';position:absolute;top:14px;left:50%;width:100%;height:2px;background:var(--border);z-index:0}
+.step-n{width:28px;height:28px;border-radius:50%;background:var(--surface);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--text3);margin:0 auto 5px;position:relative;z-index:1}
+.step.active .step-n{background:var(--teal);border-color:var(--teal);color:#fff}
+.step.done .step-n{background:var(--green);border-color:var(--green);color:#fff}
+.step-l{font-size:11px;font-weight:600;color:var(--text3)}
+.step.active .step-l{color:var(--teal)}
+.step.done .step-l{color:var(--green)}
+
+/* ══ MAIN APP ═════════════════════════════════════ */
+#main-app{display:none;height:100vh;flex-direction:column}
+
+/* Topbar */
+.topbar{background:var(--navy);height:52px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,.18);z-index:100}
+.tb-brand{display:flex;align-items:center;gap:10px}
+.tb-ic{width:30px;height:30px;border-radius:7px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.tb-name{font-size:14px;font-weight:800;color:#fff;line-height:1.1}
+.tb-name small{display:block;font-size:10px;font-weight:500;color:rgba(255,255,255,.45);letter-spacing:.02em}
+.tb-right{display:flex;align-items:center;gap:9px}
+.tb-enc{background:rgba(26,122,122,.35);border:1px solid rgba(26,122,122,.5);color:#7eccc0;font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;letter-spacing:.04em}
+.tb-user{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:4px 12px;font-size:12px;color:rgba(255,255,255,.8)}
+.tb-user strong{color:#fff}
+.rpill{display:inline-block;padding:2px 8px;border-radius:9px;font-size:10px;font-weight:700}
+.rp-admin{background:rgba(92,58,154,.4);color:#c4a7f7}
+.rp-dealer{background:rgba(26,122,122,.4);color:#7eccc0}
+.rp-citizen{background:rgba(30,122,70,.4);color:#78d6a0}
+.tb-logout{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);color:rgba(255,255,255,.75);font-size:12px;font-weight:700;padding:5px 13px;border-radius:var(--rs);cursor:pointer;transition:all .13s;font-family:'Nunito',sans-serif}
+.tb-logout:hover{background:rgba(255,255,255,.15)}
+
+/* Layout */
+.app-layout{display:flex;flex:1;overflow:hidden}
+
+/* Sidebar */
+.sidebar{width:215px;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0}
+.sb-sec{padding:8px 0 2px}
+.sb-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:7px 16px 3px}
+.ni{display:flex;align-items:center;gap:9px;padding:8px 16px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text2);border-left:3px solid transparent;transition:all .12s;user-select:none}
+.ni:hover{background:var(--teal-xl);color:var(--navy)}
+.ni.on{background:var(--teal-lt);color:var(--teal);border-left-color:var(--teal)}
+.ni-ic{font-size:14px;width:18px;text-align:center}
+.nb{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;min-width:18px;text-align:center}
+
+/* Content */
+.content{flex:1;overflow-y:auto;padding:24px}
+.pg{display:none}.pg.on{display:block}
+
+/* Page header */
+.ph{margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.ph h2{font-size:20px;font-weight:800;color:var(--navy);margin-bottom:2px}
+.ph p{font-size:13px;color:var(--text3)}
+.ph-row{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:16px}
+.ch{padding:13px 17px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.ch h3{font-size:14px;font-weight:800;color:var(--navy)}
+.cb{padding:17px}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:13px;margin-bottom:16px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:15px 16px;box-shadow:var(--shadow);border-top:3px solid var(--border2)}
+.st-teal{border-top-color:var(--teal)}
+.st-navy{border-top-color:var(--navy)}
+.st-green{border-top-color:var(--green)}
+.st-red{border-top-color:var(--red)}
+.st-amber{border-top-color:var(--amber)}
+.stat-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:7px}
+.stat-v{font-size:26px;font-weight:800;color:var(--navy);line-height:1}
+.stat-s{font-size:11px;color:var(--text3);margin-top:4px;line-height:1.4}
+
+/* Table */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--surface2);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);padding:9px 13px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:9px 13px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--teal-xl)}
+.row-flag td{background:#fff8e0!important}.row-flag:hover td{background:#fff2c0!important}
+.row-dim{opacity:.6}
+
+/* Expand row */
+.xrow{display:none}
+.xrow.open{display:table-row}
+.xcell{background:var(--surface2)!important;padding:16px 18px!important;border-bottom:1px solid var(--border)!important}
+.xtr{cursor:pointer;user-select:none}
+
+/* Badges */
+.badge{display:inline-block;padding:2px 9px;border-radius:9px;font-size:11px;font-weight:700}
+.b-green{background:var(--green-bg);color:var(--green)}
+.b-red{background:var(--red-bg);color:var(--red)}
+.b-amber{background:var(--amber-bg);color:var(--amber)}
+.b-teal{background:var(--teal-lt);color:var(--teal)}
+.b-blue{background:var(--blue-bg);color:var(--blue)}
+.b-navy{background:#e6ecf2;color:var(--navy)}
+.b-grey{background:var(--surface2);color:var(--text3)}
+.b-purple{background:var(--purple-bg);color:var(--purple)}
+
+/* Alerts */
+.alert{display:flex;align-items:flex-start;gap:10px;padding:11px 15px;border-left:3px solid;border-radius:var(--rs);font-size:13px;margin-bottom:14px}
+.a-info{background:var(--teal-lt);border-color:var(--teal);color:#0a4040}
+.a-warn{background:var(--amber-bg);border-color:var(--amber);color:#5a3800}
+.a-ok{background:var(--green-bg);border-color:var(--green);color:#0f4028}
+.a-err{background:var(--red-bg);border-color:var(--red);color:#6a1515}
+
+/* Grid helpers */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+.fr{display:flex;gap:9px;flex-wrap:wrap}
+
+/* Progress */
+.pw-b{background:var(--border);border-radius:4px;height:6px;overflow:hidden}
+.pw-i{height:100%;border-radius:4px}
+.pg-t{background:var(--teal)}.pg-a{background:var(--amber)}.pg-r{background:var(--red)}
+
+/* Mono */
+.mono{font-family:'Source Code Pro',monospace;font-size:11.5px}
+.enc{font-family:'Source Code Pro',monospace;font-size:10.5px;color:var(--text3);background:var(--surface2);padding:1px 5px;border-radius:3px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle}
+
+/* Token box */
+.tok{background:#111827;border-radius:var(--rs);padding:11px 15px;margin:9px 0}
+.tok code{font-family:'Source Code Pro',monospace;font-size:11px;color:#6ee7b7;word-break:break-all}
+
+/* Profile hero */
+.pro-hero{background:linear-gradient(120deg,var(--navy) 0%,#0d3d3d 100%);border-radius:var(--r);padding:20px 22px;color:#fff;display:flex;align-items:center;gap:15px;margin-bottom:16px}
+.pro-av{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.pro-name{font-size:18px;font-weight:800}
+.pro-sub{font-size:12px;color:rgba(255,255,255,.6);margin-top:2px}
+
+/* Pending approval cards */
+.papp{border:1px solid var(--border);border-radius:var(--r);padding:15px 17px;background:var(--surface);margin-bottom:12px;box-shadow:var(--shadow)}
+.papp.pc{border-left:4px solid var(--teal)}
+.papp.pd{border-left:4px solid var(--amber)}
+.papp h4{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.papp .pmeta{font-size:12px;color:var(--text3);line-height:1.7;margin-bottom:10px}
+.papp-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.papp-ts{font-size:11px;color:var(--text3)}
+
+/* Divider */
+.div{height:1px;background:var(--border);margin:12px 0}
+
+/* Footer */
+.footer{text-align:center;padding:12px;font-size:11px;color:var(--text3);border-top:1px solid var(--border);flex-shrink:0}
+
+/* Search / filter */
+.search{width:100%;padding:8px 13px;border:1.5px solid var(--border);border-radius:var(--rs);font-family:'Nunito',sans-serif;font-size:13px;outline:none;transition:border .13s;background:var(--surface)}
+.search:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,122,122,.09)}
+.fsel{padding:7px 11px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:12px;font-family:'Nunito',sans-serif;background:var(--surface);color:var(--text);outline:none;cursor:pointer}
+.fsel:focus{border-color:var(--teal)}
+
+/* Toast */
+#toast{position:fixed;bottom:22px;right:22px;background:var(--navy);color:#fff;padding:11px 17px;border-radius:var(--rs);font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity .22s;pointer-events:none;box-shadow:var(--shadow2);max-width:300px}
+#toast.show{opacity:1}
+
+/* Log rows */
+.logrow{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border)}
+.logrow:last-child{border:none}
+.logic{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.li-t{background:var(--teal-lt)}.li-w{background:var(--amber-bg)}.li-e{background:var(--red-bg)}
+
+/* Reg choose boxes */
+.reg-box{border:1.5px solid var(--border);border-radius:var(--r);padding:22px 18px;cursor:pointer;text-align:center;transition:all .15s;background:var(--surface)}
+.reg-box:hover{border-color:var(--teal);background:var(--teal-xl);transform:translateY(-2px)}
+
+@media(max-width:720px){.auth-panel{display:none}.sidebar{display:none}.g2,.g3,.g4{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<!-- ══ AUTH ════════════════════════════════════════ -->
+<div id="auth-wrap">
+  <div class="auth-panel">
+    <div class="ap-logo">
+      <div class="ap-icon">🏛️</div>
+      <div class="ap-title">RDTAS
+        <small>Ration Distribution Transparency &amp; Audit System</small>
+      </div>
+    </div>
+    <p class="ap-tagline">
+      A secure, role-based platform for monitoring and auditing
+      Punjab's Public Distribution System — built for full
+      transparency, fraud detection, and end-to-end encryption.
+    </p>
+    <div class="ap-creds">
+      <h4>Demo Credentials</h4>
+      <div class="cred-row"><span>Admin</span><code>admin_patiala / admin123</code></div>
+      <div class="cred-row"><span>Dealer</span><code>hkwalia / dealer123</code></div>
+      <div class="cred-row"><span>Citizen</span><code>ramesh_k / citizen123</code></div>
+    </div>
+    <p class="ap-foot" style="margin-top:28px">
+      UCS310 – Database Management System<br>
+      Thapar Institute of Engineering &amp; Technology, Patiala<br>
+      Batch 2C63 · Shaffy (1024030904) · Aastha (1024030902) · Anshika (1024030900)<br>
+      Guide: Dr. Banisha
+    </p>
+  </div>
+
+  <div class="auth-body">
+
+    <!-- LOGIN -->
+    <div class="auth-card" id="pn-login">
+      <h2>Sign In</h2>
+      <p class="sub">Select your role and enter credentials to continue</p>
+      <div class="rtabs">
+        <div class="rtab on" onclick="selRole(this,'Admin')"><em>🔐</em>Admin</div>
+        <div class="rtab" onclick="selRole(this,'Dealer')"><em>🏪</em>Dealer</div>
+        <div class="rtab" onclick="selRole(this,'Citizen')"><em>👤</em>Citizen</div>
+      </div>
+      <div class="fl"><label>Username</label><input id="lu" type="text" placeholder="Enter username" autocomplete="username"></div>
+      <div class="fl"><label>Password</label>
+        <div class="pw"><input id="lp" type="password" placeholder="Enter password">
+        <span class="pw-eye" onclick="togglePw('lp',this)">👁</span></div>
+      </div>
+      <div class="err-line" id="l-err">Invalid credentials or wrong role selected.</div>
+      <button class="btn btn-teal btn-w" onclick="doLogin()" style="margin-top:6px">Sign In →</button>
+      <div class="switch-txt">New to the system? <a onclick="sp('pn-reg-choose')">Apply for Registration</a></div>
+    </div>
+
+    <!-- CHOOSE REGISTRATION TYPE -->
+    <div class="auth-card" id="pn-reg-choose" style="display:none">
+      <h2>Apply for Access</h2>
+      <p class="sub">Which type of account are you applying for?</p>
+      <div class="g2" style="margin-bottom:16px">
+        <div class="reg-box" onclick="sp('pn-reg-citizen')">
+          <div style="font-size:34px;margin-bottom:9px">👤</div>
+          <div style="font-weight:800;color:var(--navy);margin-bottom:5px">Citizen</div>
+          <div style="font-size:12px;color:var(--text3)">Apply for a ration card and register as a PDS beneficiary</div>
+        </div>
+        <div class="reg-box" onclick="sp('pn-reg-dealer')">
+          <div style="font-size:34px;margin-bottom:9px">🏪</div>
+          <div style="font-weight:800;color:var(--navy);margin-bottom:5px">Dealer</div>
+          <div style="font-size:12px;color:var(--text3)">Apply to operate a Fair Price Shop under PDS licence</div>
+        </div>
+      </div>
+      <div class="switch-txt"><a onclick="sp('pn-login')">← Back to Sign In</a></div>
+    </div>
+
+    <!-- CITIZEN REGISTRATION -->
+    <div class="auth-card" id="pn-reg-citizen" style="display:none;max-width:460px">
+      <h2>Citizen Registration</h2>
+      <p class="sub">3-step application — reviewed and approved by Admin</p>
+      <div class="steps" id="csteps">
+        <div class="step active" id="cs1"><div class="step-n">1</div><div class="step-l">Personal</div></div>
+        <div class="step" id="cs2"><div class="step-n">2</div><div class="step-l">Address</div></div>
+        <div class="step" id="cs3"><div class="step-n">3</div><div class="step-l">Credentials</div></div>
+      </div>
+      <!-- Step 1 -->
+      <div id="cst1">
+        <div class="g2">
+          <div class="fl"><label>Full Name *</label><input id="cn" type="text" placeholder="As per Aadhaar card"></div>
+          <div class="fl"><label>Aadhaar No. *</label><input id="ca" type="text" placeholder="12-digit number" maxlength="12"></div>
+        </div>
+        <div class="g2">
+          <div class="fl"><label>Date of Birth *</label><input id="cdob" type="date"></div>
+          <div class="fl"><label>Phone *</label><input id="cph" type="text" placeholder="10-digit mobile"></div>
+        </div>
+        <div class="g2">
+          <div class="fl"><label>Family Members *</label><input id="cfm" type="number" min="1" max="20" placeholder="1 – 20"></div>
+          <div class="fl"><label>Category *</label>
+            <select id="ccat">
+              <option value="">-- Select --</option>
+              <option value="BPL">BPL — Below Poverty Line</option>
+              <option value="APL">APL — Above Poverty Line</option>
+              <option value="AAY">AAY — Antyodaya Anna Yojana</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-teal btn-w" onclick="cStep(2)">Next →</button>
+      </div>
+      <!-- Step 2 -->
+      <div id="cst2" style="display:none">
+        <div class="g2">
+          <div class="fl"><label>House / Flat No.</label><input id="chs" type="text" placeholder="e.g. 14-A"></div>
+          <div class="fl"><label>Street / Locality *</label><input id="cst" type="text" placeholder="Street name"></div>
+        </div>
+        <div class="g2">
+          <div class="fl"><label>City *</label><input id="ccy" type="text" placeholder="City"></div>
+          <div class="fl"><label>District *</label><input id="cdist" type="text" placeholder="District"></div>
+        </div>
+        <div class="g2">
+          <div class="fl"><label>State *</label><input id="cstate" type="text" placeholder="State" value="Punjab"></div>
+          <div class="fl"><label>Pincode *</label><input id="cpin" type="text" placeholder="6 digits" maxlength="6"></div>
+        </div>
+        <div class="fr">
+          <button class="btn btn-out" onclick="cStep(1)">← Back</button>
+          <button class="btn btn-teal" style="flex:1" onclick="cStep(3)">Next →</button>
+        </div>
+      </div>
+      <!-- Step 3 -->
+      <div id="cst3" style="display:none">
+        <div class="alert a-info" style="margin-bottom:14px">
+          <span>🔒</span>
+          <div><strong>Security Notice</strong> — Password is salted and SHA-1 hashed before storage. Account is locked until Admin approval.</div>
+        </div>
+        <div class="fl"><label>Desired Username *</label><input id="cun" type="text" placeholder="e.g. name_initial"></div>
+        <div class="fl"><label>Password *</label>
+          <div class="pw"><input id="cpw" type="password" placeholder="Minimum 8 characters">
+          <span class="pw-eye" onclick="togglePw('cpw',this)">👁</span></div>
+        </div>
+        <div class="fl"><label>Confirm Password *</label>
+          <div class="pw"><input id="cpw2" type="password" placeholder="Re-enter password">
+          <span class="pw-eye" onclick="togglePw('cpw2',this)">👁</span></div>
+        </div>
+        <div class="fl"><label>Justification / Reason *</label>
+          <textarea id="cjus" placeholder="Briefly explain why you need a ration card — e.g. newly relocated, income below threshold, AAY eligibility, etc."></textarea>
+        </div>
+        <div class="err-line" id="c-err"></div>
+        <div class="fr">
+          <button class="btn btn-out" onclick="cStep(2)">← Back</button>
+          <button class="btn btn-teal" style="flex:1" onclick="submitCitizen()">Submit Application</button>
+        </div>
+      </div>
+      <div class="switch-txt" style="margin-top:10px"><a onclick="sp('pn-reg-choose')">← Back</a></div>
+    </div>
+
+    <!-- DEALER REGISTRATION -->
+    <div class="auth-card" id="pn-reg-dealer" style="display:none;max-width:460px">
+      <h2>Dealer Registration</h2>
+      <p class="sub">Apply to operate a Fair Price Shop — Admin verified</p>
+      <div class="steps" id="dsteps">
+        <div class="step active" id="ds1"><div class="step-n">1</div><div class="step-l">Personal</div></div>
+        <div class="step" id="ds2"><div class="step-n">2</div><div class="step-l">Shop Details</div></div>
+        <div class="step" id="ds3"><div class="step-n">3</div><div class="step-l">Credentials</div></div>
+      </div>
+      <!-- Step 1 -->
+      <div id="dst1">
+        <div class="g2">
+          <div class="fl"><label>Full Name *</label><input id="dn" type="text" placeholder="Legal name"></div>
+          <div class="fl"><label>Phone *</label><input id="dph" type="text" placeholder="10-digit mobile"></div>
+        </div>
+        <div class="fl"><label>Aadhaar / PAN No. *</label><input id="did" type="text" placeholder="Identity number for verification"></div>
+        <div class="fl"><label>Existing FPS Licence No. (if any)</label><input id="dlic" type="text" placeholder="Leave blank if applying fresh"></div>
+        <button class="btn btn-teal btn-w" onclick="dStep(2)">Next →</button>
+      </div>
+      <!-- Step 2 -->
+      <div id="dst2" style="display:none">
+        <div class="fl"><label>Proposed Shop Name *</label><input id="dshn" type="text" placeholder="e.g. Sharma Fair Price Shop"></div>
+        <div class="fl"><label>Shop Address *</label><input id="daddr" type="text" placeholder="Full address of proposed shop"></div>
+        <div class="g2">
+          <div class="fl"><label>District *</label><input id="ddist" type="text" placeholder="District"></div>
+          <div class="fl"><label>Monthly Quota Requested (kg)</label><input id="dquo" type="number" placeholder="e.g. 500"></div>
+        </div>
+        <div class="fl"><label>Experience / Background *</label>
+          <textarea id="dexp" placeholder="Describe your prior PDS experience, why you are suitable for this role, references, etc."></textarea>
+        </div>
+        <div class="fr">
+          <button class="btn btn-out" onclick="dStep(1)">← Back</button>
+          <button class="btn btn-teal" style="flex:1" onclick="dStep(3)">Next →</button>
+        </div>
+      </div>
+      <!-- Step 3 -->
+      <div id="dst3" style="display:none">
+        <div class="alert a-info" style="margin-bottom:14px">
+          <span>🔒</span>
+          <div><strong>Security Notice</strong> — Your identity and licence will be physically verified before approval. Password is stored as a salted SHA-1 hash.</div>
+        </div>
+        <div class="fl"><label>Desired Username *</label><input id="dun" type="text" placeholder="e.g. dealer_name"></div>
+        <div class="fl"><label>Password *</label>
+          <div class="pw"><input id="dpw" type="password" placeholder="Minimum 8 characters">
+          <span class="pw-eye" onclick="togglePw('dpw',this)">👁</span></div>
+        </div>
+        <div class="fl"><label>Confirm Password *</label>
+          <div class="pw"><input id="dpw2" type="password" placeholder="Re-enter password">
+          <span class="pw-eye" onclick="togglePw('dpw2',this)">👁</span></div>
+        </div>
+        <div class="err-line" id="d-err"></div>
+        <div class="fr">
+          <button class="btn btn-out" onclick="dStep(2)">← Back</button>
+          <button class="btn btn-teal" style="flex:1" onclick="submitDealer()">Submit Application</button>
+        </div>
+      </div>
+      <div class="switch-txt" style="margin-top:10px"><a onclick="sp('pn-reg-choose')">← Back</a></div>
+    </div>
+
+  </div><!-- auth-body -->
+</div><!-- auth-wrap -->
+
+<!-- ══ MAIN APP ════════════════════════════════════ -->
+<div id="main-app" style="display:none;flex-direction:column;height:100vh">
+  <div class="topbar">
+    <div class="tb-brand">
+      <div class="tb-ic">🏛️</div>
+      <div class="tb-name">RDTAS <small>Ration Distribution Transparency &amp; Audit System — TIET Patiala</small></div>
+    </div>
+    <div class="tb-right">
+      <span class="tb-enc">🔒 E2E Encrypted</span>
+      <div class="tb-user"><strong id="tb-un">—</strong> <span id="tb-rp" class="rpill">—</span></div>
+      <button class="tb-logout" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="sb-sec">
+        <div class="sb-lbl">Overview</div>
+        <div class="ni on" onclick="gp('dashboard',this)"><span class="ni-ic">📊</span>Dashboard</div>
+      </div>
+      <div id="nav-admin" style="display:none">
+        <div class="sb-lbl">Administration</div>
+        <div class="ni" onclick="gp('holders',this)"><span class="ni-ic">👥</span>Ration Holders</div>
+        <div class="ni" onclick="gp('ration-cards',this)"><span class="ni-ic">🪪</span>Ration Cards</div>
+        <div class="ni" onclick="gp('dealers',this)"><span class="ni-ic">🤝</span>Dealers</div>
+        <div class="ni" onclick="gp('shops',this)"><span class="ni-ic">🏪</span>Fair Price Shops</div>
+        <div class="ni" onclick="gp('users',this)"><span class="ni-ic">🔑</span>User Accounts</div>
+        <div class="ni" onclick="gp('approvals',this)"><span class="ni-ic">✅</span>Pending Approvals <span class="nb" id="nb-cnt" style="display:none">0</span></div>
+        <div class="ni" onclick="gp('register-holder',this)"><span class="ni-ic">➕</span>Register Holder</div>
+      </div>
+      <div id="nav-dealer" style="display:none">
+        <div class="sb-lbl">Shop Operations</div>
+        <div class="ni" onclick="gp('stock',this)"><span class="ni-ic">📦</span>Stock Report</div>
+        <div class="ni" onclick="gp('distribute',this)"><span class="ni-ic">📤</span>Distribute Ration</div>
+      </div>
+      <div class="sb-sec">
+        <div class="sb-lbl">Records</div>
+        <div class="ni" onclick="gp('distributions',this)"><span class="ni-ic">📋</span>Distribution Log</div>
+        <div class="ni" onclick="gp('complaints',this)"><span class="ni-ic">📢</span>Complaints</div>
+        <div class="ni" onclick="gp('quota',this)"><span class="ni-ic">⚖️</span>Category Quota</div>
+      </div>
+      <div id="nav-audit" style="display:none">
+        <div class="sb-lbl">Security</div>
+        <div class="ni" onclick="gp('audit',this)"><span class="ni-ic">🔎</span>Audit Log</div>
+        <div class="ni" onclick="gp('sessions',this)"><span class="ni-ic">🎫</span>Sessions &amp; Tokens</div>
+      </div>
+      <div id="nav-citizen" style="display:none">
+        <div class="sb-lbl">My Account</div>
+        <div class="ni" onclick="gp('my-profile',this)"><span class="ni-ic">👤</span>My Profile</div>
+        <div class="ni" onclick="gp('file-complaint',this)"><span class="ni-ic">📝</span>File Complaint</div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="pg on" id="pg-dashboard">
+        <div class="ph"><h2>Dashboard</h2><p>March 2026 — System Overview</p></div>
+        <div id="da-admin" style="display:none">
+          <div class="alert a-warn"><span>⚠️</span><span><strong>Fraud Alert — TXN-2026-0007:</strong> 99 kg Rice distributed to HLD-006 (Gurpreet Kaur) at SHP-002 on 09 Mar 2026. AAY quota is 7 kg. Flagged by <code style="font-family:'Source Code Pro',monospace">trg_flag_fraud_dist</code> — Under Review.</span></div>
+          <div class="stats">
+            <div class="stat st-teal"><div class="stat-l">Active Holders</div><div class="stat-v">16</div><div class="stat-s">2 inactive (HLD-005, HLD-014)</div></div>
+            <div class="stat st-navy"><div class="stat-l">Fair Price Shops</div><div class="stat-v">5</div><div class="stat-s">SHP-006 inactive (DLR-006)</div></div>
+            <div class="stat st-amber"><div class="stat-l">Transactions Mar</div><div class="stat-v">19</div><div class="stat-s">1 flagged, 18 completed</div></div>
+            <div class="stat st-red"><div class="stat-l">Open Complaints</div><div class="stat-v">3</div><div class="stat-s">2 under review · 1 open</div></div>
+            <div class="stat st-green"><div class="stat-l">BPL Households</div><div class="stat-v">7</div><div class="stat-s">5 kg Rice / 3 kg Wheat</div></div>
+            <div class="stat st-navy"><div class="stat-l">AAY Households</div><div class="stat-v">5</div><div class="stat-s">Antyodaya Anna Yojana</div></div>
+          </div>
+          <div class="g2">
+            <div class="card"><div class="ch"><h3>📦 Stock Utilisation</h3></div>
+              <div class="cb" id="dash-stock-bars"></div>
+            </div>
+            <div class="card"><div class="ch"><h3>🔎 Recent Audit Events</h3></div>
+              <div class="cb" style="padding:0 17px">
+                <div class="logrow"><div class="logic li-e">⚠</div><div><div style="font-weight:700;font-size:13px">FRAUD FLAG — TXN-2026-0007</div><div style="font-size:12px;color:var(--text3)">99 kg rice · HLD-006 · SHP-002 · 09 Mar 2026</div></div></div>
+                <div class="logrow"><div class="logic li-t">🪪</div><div><div style="font-weight:700;font-size:13px">Card Suspended — RC-2022-0014</div><div style="font-size:12px;color:var(--text3)">Rajwinder Kaur · Admin action</div></div></div>
+                <div class="logrow"><div class="logic li-t">✔</div><div><div style="font-weight:700;font-size:13px">Complaint Resolved — CMP-004</div><div style="font-size:12px;color:var(--text3)">Quality issue · SHP-003 · Kavita Rani</div></div></div>
+                <div class="logrow"><div class="logic li-w">🔒</div><div><div style="font-weight:700;font-size:13px">Account Locked — USR-DLR-06</div><div style="font-size:12px;color:var(--text3)">npsingh (Narinderpal Singh)</div></div></div>
+                <div class="logrow"><div class="logic li-t">📦</div><div><div style="font-weight:700;font-size:13px">CHECKPOINT — 2026-03</div><div style="font-size:12px;color:var(--text3)">Monthly checkpoint logged by DBA</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="da-dealer" style="display:none">
+          <div class="stats">
+            <div class="stat st-teal"><div class="stat-l">Your Shop</div><div class="stat-v" style="font-size:16px;margin-top:5px">Walia FPS</div><div class="stat-s">SHP-001 · Ward 3, Civil Lines, Patiala</div></div>
+            <div class="stat st-navy"><div class="stat-l">Txns (Mar 2026)</div><div class="stat-v">7</div><div class="stat-s">All completed</div></div>
+            <div class="stat st-teal"><div class="stat-l">Rice Remaining</div><div class="stat-v">125<span style="font-size:14px"> kg</span></div><div class="stat-s">220 recv · 95 dist</div></div>
+            <div class="stat st-navy"><div class="stat-l">Wheat Remaining</div><div class="stat-v">90<span style="font-size:14px"> kg</span></div><div class="stat-s">160 recv · 70 dist</div></div>
+          </div>
+          <div class="alert a-info"><span>🔒</span><span>All distribution actions are authenticated via your session token and permanently recorded in the immutable audit trail.</span></div>
+        </div>
+        <div id="da-citizen" style="display:none">
+          <div class="pro-hero" id="cit-hero">
+            <div class="pro-av">👤</div>
+            <div><div class="pro-name" id="cit-dname">—</div><div class="pro-sub" id="cit-dsub">—</div></div>
+          </div>
+          <div class="stats">
+            <div class="stat st-teal"><div class="stat-l">Category</div><div class="stat-v" style="font-size:18px;margin-top:5px" id="cit-dcat">—</div><div class="stat-s" id="cit-dfam">—</div></div>
+            <div class="stat st-navy"><div class="stat-l">Ration Card</div><div class="stat-v" style="font-size:14px;margin-top:6px" id="cit-dcard">—</div><div class="stat-s" id="cit-dcardst">—</div></div>
+            <div class="stat st-green"><div class="stat-l">Rice / Month</div><div class="stat-v" id="cit-drice">—</div><div class="stat-s">kg entitlement</div></div>
+            <div class="stat st-teal"><div class="stat-l">Wheat / Month</div><div class="stat-v" id="cit-dwheat">—</div><div class="stat-s">kg entitlement</div></div>
+          </div>
+          <div class="alert a-info"><span>ℹ️</span><span>View your distribution history in <strong>Distribution Log</strong> and raise a grievance via <strong>File Complaint</strong> if ration was not received correctly.</span></div>
+        </div>
+      </div>
+
+      <!-- RATION HOLDERS -->
+      <div class="pg" id="pg-holders">
+        <div class="ph">
+          <h2>Ration Holders</h2>
+          <p>All 18 registered beneficiaries — click any row to expand full details including address and entitlement</p>
+          <div class="ph-row">
+            <input class="search" style="max-width:240px" placeholder="Search name, ID, Aadhaar, phone…" oninput="fHolders(this.value)" id="h-search">
+            <select class="fsel" id="h-cat" onchange="fHolders(document.getElementById('h-search').value)">
+              <option value="">All Categories</option>
+              <option value="BPL">BPL</option><option value="APL">APL</option><option value="AAY">AAY</option>
+            </select>
+            <select class="fsel" id="h-st" onchange="fHolders(document.getElementById('h-search').value)">
+              <option value="">All Status</option>
+              <option value="Y">Active</option><option value="N">Inactive</option>
+            </select>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><h3>Holder Registry</h3><span style="font-size:12px;color:var(--text3)">18 entries — click row to expand</span></div>
+          <div class="tw"><table>
+            <thead><tr>
+              <th style="width:28px"></th>
+              <th>Holder ID</th><th>Full Name</th><th>Aadhaar (Masked)</th>
+              <th>Category</th><th>Family</th><th>Phone</th><th>Card ID</th><th>City / District</th><th>Status</th>
+            </tr></thead>
+            <tbody id="htb"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- RATION CARDS -->
+      <div class="pg" id="pg-ration-cards">
+        <div class="ph"><h2>Ration Cards</h2><p>18 cards issued — Active, Expired, Suspended</p></div>
+        <div class="card"><div class="ch"><h3>Card Registry</h3></div>
+          <div class="tw"><table>
+            <thead><tr><th>Card ID</th><th>Holder Name</th><th>Category</th><th>Issue Date</th><th>Expiry Date</th><th>Status</th></tr></thead>
+            <tbody id="ctb"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- DEALERS -->
+      <div class="pg" id="pg-dealers">
+        <div class="ph"><h2>Dealers</h2><p>6 licensed FPS operators — Punjab</p></div>
+        <div class="card"><div class="ch"><h3>Dealer Registry</h3></div>
+          <div class="tw"><table>
+            <thead><tr><th>Dealer ID</th><th>Name</th><th>Phone</th><th>Licence</th><th>Username</th><th>Pwd Hash (SHA-1)</th><th>Salt</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">DLR-001</td><td><strong>Harpreet Kaur Walia</strong></td><td>9878001001</td><td>LIC-PTL-001</td><td>hkwalia</td><td><span class="enc">a94a8fe5ccb19ba6…</span></td><td><span class="enc">8f14e45fcc</span></td><td><span class="badge b-green">Active</span></td></tr>
+              <tr><td class="mono">DLR-002</td><td><strong>Vikram Verma</strong></td><td>9878001002</td><td>LIC-LDH-002</td><td>vverma</td><td><span class="enc">b6589fc6ab0dc82c…</span></td><td><span class="enc">c4ca4238a0</span></td><td><span class="badge b-green">Active</span></td></tr>
+              <tr><td class="mono">DLR-003</td><td><strong>Gurmail Singh</strong></td><td>9878001003</td><td>LIC-ASR-003</td><td>gsingh</td><td><span class="enc">356a192b7913b04c…</span></td><td><span class="enc">1679091c5a</span></td><td><span class="badge b-green">Active</span></td></tr>
+              <tr><td class="mono">DLR-004</td><td><strong>Amarjit Kaur</strong></td><td>9878001004</td><td>LIC-BTI-004</td><td>akaur</td><td><span class="enc">da4b9237bacccdf1…</span></td><td><span class="enc">8277e0910d</span></td><td><span class="badge b-green">Active</span></td></tr>
+              <tr><td class="mono">DLR-005</td><td><strong>Rajesh Bhatia</strong></td><td>9878001005</td><td>LIC-JLD-005</td><td>rbhatia</td><td><span class="enc">77de68daecd823ba…</span></td><td><span class="enc">eccbc87e4b</span></td><td><span class="badge b-green">Active</span></td></tr>
+              <tr><td class="mono">DLR-006</td><td><strong>Narinderpal Singh</strong></td><td>9878001006</td><td>LIC-SGR-006</td><td>npsingh</td><td><span class="enc">1b6453892473a467…</span></td><td><span class="enc">c4ca4238a1</span></td><td><span class="badge b-red">Inactive</span></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- SHOPS -->
+      <div class="pg" id="pg-shops">
+        <div class="ph"><h2>Fair Price Shops</h2><p>6 shops across Punjab — 5 active, 1 inactive</p></div>
+        <div class="card"><div class="ch"><h3>Shop Registry</h3></div>
+          <div class="tw"><table>
+            <thead><tr><th>Shop ID</th><th>Shop Name</th><th>Location</th><th>District</th><th>Dealer</th><th>Monthly Quota</th><th>Opened On</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">SHP-001</td><td><strong>Walia Fair Price Shop</strong></td><td>Ward 3, Civil Lines</td><td>Patiala</td><td>DLR-001</td><td>600 kg</td><td>01 Apr 2015</td><td><span class="badge b-green">Active</span></td></tr>
+              <tr><td class="mono">SHP-002</td><td><strong>Verma Ration Depot</strong></td><td>Model Town Phase 2</td><td>Ludhiana</td><td>DLR-002</td><td>500 kg</td><td>15 Aug 2012</td><td><span class="badge b-green">Active</span></td></tr>
+              <tr><td class="mono">SHP-003</td><td><strong>Singh General Store PDS</strong></td><td>Sadar Bazaar</td><td>Amritsar</td><td>DLR-003</td><td>450 kg</td><td>10 Jan 2018</td><td><span class="badge b-green">Active</span></td></tr>
+              <tr><td class="mono">SHP-004</td><td><strong>Kaur Kirana and Ration</strong></td><td>Old City Road</td><td>Bathinda</td><td>DLR-004</td><td>550 kg</td><td>20 Jun 2016</td><td><span class="badge b-green">Active</span></td></tr>
+              <tr><td class="mono">SHP-005</td><td><strong>Bhatia Depot</strong></td><td>Urban Estate</td><td>Jalandhar</td><td>DLR-005</td><td>480 kg</td><td>05 Sep 2019</td><td><span class="badge b-green">Active</span></td></tr>
+              <tr><td class="mono">SHP-006</td><td><strong>Narinderpal FPS</strong></td><td>Sunam Chowk</td><td>Sangrur</td><td>DLR-006</td><td>400 kg</td><td>12 Mar 2017</td><td><span class="badge b-red">Inactive</span></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- USER ACCOUNTS -->
+      <div class="pg" id="pg-users">
+        <div class="ph"><h2>User Accounts</h2><p>18 system accounts — salted SHA-1 hashes, role-based access control</p></div>
+        <div class="card"><div class="ch"><h3>Account Registry</h3></div>
+          <div class="tw"><table>
+            <thead><tr><th>User ID</th><th>Username</th><th>Role</th><th>Linked ID</th><th>Pwd Hash (SHA-1)</th><th>Salt</th><th>Locked</th><th>Created</th></tr></thead>
+            <tbody id="utb"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- PENDING APPROVALS -->
+      <div class="pg" id="pg-approvals">
+        <div class="ph"><h2>Pending Approvals</h2><p>Review and approve or reject new Citizen and Dealer registration requests</p></div>
+        <div class="alert a-info"><span>🔒</span><span>All registrations require manual Admin verification. Approval creates a user account and activates the applicant. All actions are permanently logged in the Audit Trail.</span></div>
+        <div id="ap-empty" class="alert a-ok" style="display:none"><span>✅</span><span>No pending applications at this time.</span></div>
+        <div id="ap-list"></div>
+      </div>
+
+      <!-- REGISTER HOLDER -->
+      <div class="pg" id="pg-register-holder">
+        <div class="ph"><h2>Register New Holder</h2><p>Calls <code class="mono">sp_register_holder</code> — Admin-authenticated, permanently audit-logged</p></div>
+        <div class="alert a-info"><span>🔒</span><span>This action is validated against your active session token and will be recorded in the immutable Audit Log.</span></div>
+        <div class="card"><div class="ch"><h3>New Holder Registration Form</h3></div>
+          <div class="cb">
+            <div class="g2">
+              <div class="fl"><label>Holder ID *</label><input id="rh-id" type="text" placeholder="e.g. HLD-019"></div>
+              <div class="fl"><label>Full Name *</label><input id="rh-nm" type="text" placeholder="Full name as per Aadhaar"></div>
+            </div>
+            <div class="g2">
+              <div class="fl"><label>Aadhaar No. (12 digits) *</label><input id="rh-aa" type="text" placeholder="xxxxxxxxxxxx" maxlength="12"></div>
+              <div class="fl"><label>Phone Number</label><input id="rh-ph" type="text" placeholder="10-digit mobile"></div>
+            </div>
+            <div class="g2">
+              <div class="fl"><label>Category *</label>
+                <select id="rh-ct"><option value="">-- Select --</option><option value="BPL">BPL</option><option value="APL">APL</option><option value="AAY">AAY</option></select>
+              </div>
+              <div class="fl"><label>Family Members *</label><input id="rh-fm" type="number" min="1" max="20" placeholder="1–20"></div>
+            </div>
+            <div class="g2">
+              <div class="fl"><label>Card ID to Issue *</label><input id="rh-cd" type="text" placeholder="e.g. RC-2026-0019"></div>
+              <div class="fl"><label>Address ID (1–18)</label><input id="rh-ad" type="number" min="1" max="18" placeholder="1–18"></div>
+            </div>
+            <div class="fr" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+              <button class="btn btn-navy" onclick="doRegHolder()">Register Holder</button>
+              <button class="btn btn-out" onclick="clearRH()">Clear Form</button>
+            </div>
+            <div id="rh-res" style="display:none;margin-top:12px" class="alert"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STOCK -->
+      <div class="pg" id="pg-stock">
+        <div class="ph"><h2>Stock Report</h2><p>Current inventory levels — March 2026 (<code class="mono">sp_stock_report</code>)</p></div>
+        <div class="card"><div class="ch"><h3>All Active Shops — Stock Levels</h3></div>
+          <div class="tw"><table>
+            <thead><tr><th>Shop</th><th>Commodity</th><th>Received</th><th>Distributed</th><th>Remaining</th><th>Min. Threshold</th><th>Utilisation</th><th>Alert</th></tr></thead>
+            <tbody id="sktb"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- DISTRIBUTE -->
+      <div class="pg" id="pg-distribute">
+        <div class="ph"><h2>Distribute Ration</h2><p>Record a new distribution — <code class="mono">sp_distribute_ration</code> — authenticated &amp; logged</p></div>
+        <div class="alert a-warn"><span>⚠️</span><span>One distribution per commodity per holder per month. Duplicate entries are rejected. All transactions are logged in the audit trail with your session token.</span></div>
+        <div class="card"><div class="ch"><h3>New Distribution Entry</h3></div>
+          <div class="cb">
+            <div class="g2">
+              <div class="fl"><label>Transaction ID *</label><input id="dd-txn" type="text" placeholder="e.g. TXN-2026-0020"></div>
+              <div class="fl"><label>Holder ID *</label><input id="dd-hld" type="text" placeholder="e.g. HLD-001"></div>
+            </div>
+            <div class="g2">
+              <div class="fl"><label>Shop</label>
+                <select id="dd-sh"><option value="SHP-001">SHP-001 — Walia FPS</option><option value="SHP-002">SHP-002 — Verma Depot</option><option value="SHP-003">SHP-003 — Singh General PDS</option><option value="SHP-004">SHP-004 — Kaur Kirana</option><option value="SHP-005">SHP-005 — Bhatia Depot</option></select>
+              </div>
+              <div class="fl"><label>Commodity</label>
+                <select id="dd-cm"><option value="1">1 — Rice (kg) @ ₹3.00</option><option value="2">2 — Wheat (kg) @ ₹2.00</option><option value="3">3 — Sugar (kg) @ ₹13.50</option><option value="4">4 — Mustard Oil (L) @ ₹45.00</option></select>
+              </div>
+            </div>
+            <div class="g2">
+              <div class="fl"><label>Quantity *</label><input id="dd-qty" type="number" min="0.1" step="0.5" placeholder="e.g. 5.00"></div>
+              <div class="fl"><label>Dealer</label>
+                <select id="dd-dlr"><option value="DLR-001">DLR-001 — Harpreet Kaur Walia</option><option value="DLR-002">DLR-002 — Vikram Verma</option><option value="DLR-003">DLR-003 — Gurmail Singh</option><option value="DLR-004">DLR-004 — Amarjit Kaur</option><option value="DLR-005">DLR-005 — Rajesh Bhatia</option></select>
+              </div>
+            </div>
+            <div class="fr" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+              <button class="btn btn-navy" onclick="doDistribute()">Record Distribution</button>
+              <button class="btn btn-out" onclick="clearDD()">Clear</button>
+            </div>
+            <div id="dd-res" style="display:none;margin-top:12px" class="alert"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DISTRIBUTION LOG -->
+      <div class="pg" id="pg-distributions">
+        <div class="ph"><h2>Distribution Log</h2><p>19 transactions recorded — March 2026</p></div>
+        <div class="card"><div class="ch"><h3>Transaction Records</h3></div>
+          <div class="tw"><table>
+            <thead><tr><th>Txn ID</th><th>Holder</th><th>Shop</th><th>Commodity</th><th>Dealer</th><th>Qty</th><th>Date</th><th>Status</th></tr></thead>
+            <tbody id="dtb"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- COMPLAINTS -->
+      <div class="pg" id="pg-complaints">
+        <div class="ph"><h2>Complaints</h2><p>5 filed — 2 open, 2 under review, 1 resolved</p></div>
+        <div class="card"><div class="ch"><h3>Complaint Records</h3></div>
+          <div class="tw"><table>
+            <thead><tr><th>ID</th><th>Holder</th><th>Shop</th><th>Type</th><th>Description</th><th>Filed</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">CMP-001</td><td>HLD-003 — Arjun Singh</td><td>SHP-001</td><td>Short quantity given</td><td style="font-size:12px;max-width:200px;white-space:normal">Received only 5 kg rice instead of entitled 7 kg for March 2026.</td><td>07 Mar 2026</td><td><span class="badge b-red">Open</span></td></tr>
+              <tr><td class="mono">CMP-002</td><td>HLD-010 — Meena Devi</td><td>SHP-004</td><td>Dealer misbehaviour</td><td style="font-size:12px;max-width:200px;white-space:normal">Dealer refused to give ration without extra payment of ₹50.</td><td>14 Mar 2026</td><td><span class="badge b-amber">Under Review</span></td></tr>
+              <tr><td class="mono">CMP-003</td><td>HLD-015 — Sukhwinder Singh</td><td>SHP-001</td><td>Ration not received</td><td style="font-size:12px;max-width:200px;white-space:normal">Card active but dealer marked March distribution as completed.</td><td>16 Mar 2026</td><td><span class="badge b-red">Open</span></td></tr>
+              <tr><td class="mono">CMP-004</td><td>HLD-008 — Kavita Rani</td><td>SHP-003</td><td>Quality issue</td><td style="font-size:12px;max-width:200px;white-space:normal">Wheat supplied this month had stones mixed in it.</td><td>12 Mar 2026</td><td><span class="badge b-green">Resolved</span></td></tr>
+              <tr class="row-flag"><td class="mono">CMP-005</td><td>HLD-006 — Gurpreet Kaur</td><td>SHP-002</td><td>Fake distribution entry</td><td style="font-size:12px;max-width:200px;white-space:normal">System shows 99 kg rice on 09-Mar but family never received it.</td><td>10 Mar 2026</td><td><span class="badge b-amber">Under Review</span></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- FILE COMPLAINT -->
+      <div class="pg" id="pg-file-complaint">
+        <div class="ph"><h2>File a Complaint</h2><p>Submit a grievance about ration distribution at your Fair Price Shop</p></div>
+        <div class="card"><div class="ch"><h3>Grievance Form</h3></div>
+          <div class="cb">
+            <div class="g2">
+              <div class="fl"><label>Complaint ID *</label><input id="fc-id" type="text" placeholder="e.g. CMP-006"></div>
+              <div class="fl"><label>Your Holder ID *</label><input id="fc-hld" type="text" placeholder="e.g. HLD-001"></div>
+            </div>
+            <div class="g2">
+              <div class="fl"><label>Shop Involved</label>
+                <select id="fc-sh"><option value="SHP-001">SHP-001 — Walia FPS</option><option value="SHP-002">SHP-002 — Verma Depot</option><option value="SHP-003">SHP-003 — Singh General PDS</option><option value="SHP-004">SHP-004 — Kaur Kirana</option><option value="SHP-005">SHP-005 — Bhatia Depot</option></select>
+              </div>
+              <div class="fl"><label>Complaint Type</label>
+                <select id="fc-tp"><option>Ration not received</option><option>Short quantity given</option><option>Dealer misbehaviour</option><option>Fake distribution entry</option><option>Quality issue</option><option>Other</option></select>
+              </div>
+            </div>
+            <div class="fl"><label>Description *</label><textarea id="fc-desc" placeholder="Describe the issue — date, quantity discrepancy, dealer behaviour, any witnesses, etc."></textarea></div>
+            <div class="fr" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+              <button class="btn btn-navy" onclick="doComplaint()">Submit Complaint</button>
+            </div>
+            <div id="fc-res" style="display:none;margin-top:12px" class="alert"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUOTA -->
+      <div class="pg" id="pg-quota">
+        <div class="ph"><h2>Category Quota</h2><p>Monthly commodity entitlement per household under PDS — 3 categories</p></div>
+        <div class="g3">
+          <div class="card"><div class="ch"><h3 style="color:var(--green)">▌ BPL</h3></div>
+            <div class="cb">
+              <table><tr><td style="color:var(--text3);font-size:12px;padding:5px 10px 5px 0">Rice</td><td><strong>5.00 kg</strong></td></tr><tr><td style="color:var(--text3);font-size:12px;padding:5px 10px 5px 0">Wheat</td><td><strong>3.00 kg</strong></td></tr><tr><td style="color:var(--text3);font-size:12px;padding:5px 10px 5px 0">Sugar</td><td><strong>1.00 kg</strong></td></tr><tr><td style="color:var(--text3);font-size:12px;padding:5px 10px 5px 0">Mustard Oil</td><td><strong>1.00 L</strong></td></tr><tr><td style="color:var(--text3);font-size:12px;padding:5px 10px 5px 0">Kerosene</td><td><strong>2.00 L</strong></td></tr></table>
+              <div style="margin-top:10px"><span class="badge b-green">7 households</span></div>
+            </div>
+          </div>
+          <div class="card"><div class="ch"><h3 style="color:var(--teal)">▌ APL</h3></div>
+            <div class="cb">
+              <table><tr><td style="color:var(--text3);font-size:12px;padding:5px 10px 5px 0">Rice</td><td><strong>3.00 kg</strong></td></tr><tr><td style="color:var(--text3);font-size:12px;padding:5px 10px 5px 0">Wheat</td><td><strong>2.00 kg</strong></td></tr><tr><td style="color:var(--text3);font-size:12px;padding:5px 10px 5px 0">Sugar</td><td><strong>0.50 kg</strong></td></tr><tr><td style="color:var(--text3);font-size:12px;padding:5px 10px 5px 0">Mustard Oil</td><td><strong>0.50 L</strong></td></tr><tr><td style="color:var(--text3);font-size:12px;padding:5px 10px 5px 0">Kerosene</td><td><strong>0.00 L</strong></td></tr></table>
+              <div style="margin-top:10px"><span class="badge b-teal">6 households</span></div>
+            </div>
+          </div>
+          <div class="card"><div class="ch"><h3 style="color:var(--amber)">▌ AAY</h3></div>
+            <div class="cb">
+              <table><tr><td style="color:var(--text3);font-size:12px;padding:5px 10px 5px 0">Rice</td><td><strong>7.00 kg</strong></td></tr><tr><td style="color:var(--text3);font-size:12px;padding:5px 10px 5px 0">Wheat</td><td><strong>5.00 kg</strong></td></tr><tr><td style="color:var(--text3);font-size:12px;padding:5px 10px 5px 0">Sugar</td><td><strong>2.00 kg</strong></td></tr><tr><td style="color:var(--text3);font-size:12px;padding:5px 10px 5px 0">Mustard Oil</td><td><strong>1.50 L</strong></td></tr><tr><td style="color:var(--text3);font-size:12px;padding:5px 10px 5px 0">Kerosene</td><td><strong>3.00 L</strong></td></tr></table>
+              <div style="margin-top:10px"><span class="badge b-amber">5 households</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card"><div class="ch"><h3>Commodity Price List</h3></div>
+          <div class="tw"><table>
+            <thead><tr><th>Commodity ID</th><th>Name</th><th>Unit</th><th>Govt. Price</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>Rice</td><td>kg</td><td>₹ 3.00</td></tr>
+              <tr><td>2</td><td>Wheat</td><td>kg</td><td>₹ 2.00</td></tr>
+              <tr><td>3</td><td>Sugar</td><td>kg</td><td>₹ 13.50</td></tr>
+              <tr><td>4</td><td>Mustard Oil</td><td>L</td><td>₹ 45.00</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- AUDIT LOG -->
+      <div class="pg" id="pg-audit">
+        <div class="ph"><h2>Audit Log</h2><p>Immutable event trail — INSERT, UPDATE, DISTRIBUTE, LOGIN, CHECKPOINT</p></div>
+        <div class="alert a-info"><span>🔒</span><span>Append-only. Cannot be modified after entry. Fraud flags set automatically by <code class="mono">trg_flag_fraud_dist</code>.</span></div>
+        <div class="card">
+          <div class="ch"><h3>Event Log</h3>
+            <div style="display:flex;gap:8px">
+              <select class="fsel" id="af-op" onchange="rAudit()"><option value="">All Operations</option><option>DISTRIBUTE</option><option>INSERT</option><option>UPDATE</option><option>LOGIN</option><option>CHECKPOINT</option></select>
+              <select class="fsel" id="af-fl" onchange="rAudit()"><option value="">All Flags</option><option>Normal</option><option>Suspect</option><option>Confirmed Fraud</option></select>
+            </div>
+          </div>
+          <div class="tw"><table>
+            <thead><tr><th>Log ID</th><th>Timestamp</th><th>Table</th><th>Operation</th><th>Record Ref</th><th>Performed By</th><th>Snapshot</th><th>Fraud Flag</th></tr></thead>
+            <tbody id="atb"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- SESSIONS -->
+      <div class="pg" id="pg-sessions">
+        <div class="ph"><h2>Sessions &amp; Tokens</h2><p>Active session tokens — time-limited, revocable, end-to-end authenticated</p></div>
+        <div class="g2">
+          <div class="card"><div class="ch"><h3>Current Session</h3></div>
+            <div class="cb">
+              <div style="font-size:12px;color:var(--text3);margin-bottom:5px">Session Token (SHA-256, simulated)</div>
+              <div class="tok"><code id="tok-val">—</code></div>
+              <div style="font-size:12px;color:var(--text3);margin-top:9px">Issued: <strong id="tok-iss">—</strong></div>
+              <div style="font-size:12px;color:var(--text3)">Expires: <strong id="tok-exp">—</strong></div>
+              <div class="div"></div>
+              <div style="font-size:12px;color:var(--text3)">Every stored procedure validates via <code class="mono">fn_validate_session(p_token_id)</code>. Expired or revoked tokens return <code class="mono">AUTH_ERROR</code>.</div>
+            </div>
+          </div>
+          <div class="card"><div class="ch"><h3>rc_session_tokens Schema</h3></div>
+            <div class="cb">
+              <table style="font-size:12px">
+                <thead><tr><th>Column</th><th>Type</th><th>Note</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono">token_id</td><td>VARCHAR2(64) PK</td><td>SHA-256 hash</td></tr>
+                  <tr><td class="mono">user_id</td><td>VARCHAR2(12) FK</td><td>→ rc_user_accounts</td></tr>
+                  <tr><td class="mono">issued_at</td><td>TIMESTAMP</td><td>DEFAULT SYSTIMESTAMP</td></tr>
+                  <tr><td class="mono">expires_at</td><td>TIMESTAMP NOT NULL</td><td>+2 hours</td></tr>
+                  <tr><td class="mono">is_revoked</td><td>CHAR(1)</td><td>'N' default</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="card"><div class="ch"><h3>Security Architecture</h3></div>
+          <div class="cb"><div class="g2">
+            <div>
+              <div style="font-weight:800;font-size:13px;color:var(--navy);margin-bottom:10px">Password Security</div>
+              <div class="logrow"><div class="logic li-t" style="font-size:10px;font-weight:700">SHA1</div><div style="font-size:13px"><strong>SHA-1 Hashing</strong> with per-user random salts in <code class="mono">pwd_salt</code></div></div>
+              <div class="logrow"><div class="logic li-t">🔐</div><div style="font-size:13px"><strong>Salted Hash</strong> prevents rainbow table attacks</div></div>
+              <div class="logrow"><div class="logic li-w">🔒</div><div style="font-size:13px"><strong>Account Lockout</strong> after repeated failed attempts (<code class="mono">failed_attempts</code> column)</div></div>
+            </div>
+            <div>
+              <div style="font-weight:800;font-size:13px;color:var(--navy);margin-bottom:10px">Data Protection</div>
+              <div class="logrow"><div class="logic li-t">🪪</div><div style="font-size:13px"><strong>Aadhaar Masking</strong> — last 4 digits shown in UI; full number stored encrypted</div></div>
+              <div class="logrow"><div class="logic li-t">🎫</div><div style="font-size:13px"><strong>Time-limited Tokens</strong> — auto-expire after 2 hours, Admin-revocable</div></div>
+              <div class="logrow"><div class="logic li-t">📜</div><div style="font-size:13px"><strong>RBAC</strong> — Admin / Dealer / Citizen role checks enforced in every stored procedure</div></div>
+            </div>
+          </div></div>
+        </div>
+      </div>
+
+      <!-- MY PROFILE -->
+      <div class="pg" id="pg-my-profile">
+        <div class="ph"><h2>My Profile</h2><p>Your registered information in the RDTAS system</p></div>
+        <div id="profile-wrap"></div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /app-layout -->
+
+  <div class="footer">
+    UCS310 – Database Management System &nbsp;|&nbsp; Thapar Institute of Engineering &amp; Technology, Patiala &nbsp;|&nbsp;
+    Batch 2C63 &nbsp;|&nbsp; Shaffy (1024030904) · Aastha (1024030902) · Anshika (1024030900) &nbsp;|&nbsp; Guide: Dr. Banisha
+  </div>
+</div><!-- /main-app -->
+
+<div id="toast"></div>
+
+<!-- ══ DATA + LOGIC ════════════════════════════════ -->
+<script>
+/* ── DATA ─────────────────────────────────────────── */
+const ADDR={
+  1:{h:'14-A',s:'Civil Lines Road',w:'Ward 3',c:'Patiala',d:'Patiala',st:'Punjab',p:'147001'},
+  2:{h:'7',s:'Rajpura Road',w:'Sirhind',c:'Fatehgarh Sahib',d:'Fatehgarh Sahib',st:'Punjab',p:'140406'},
+  3:{h:'22-B',s:'Model Town',w:'Ward 11',c:'Ludhiana',d:'Ludhiana',st:'Punjab',p:'141001'},
+  4:{h:'5',s:'Nabha Road',w:'Sanaur',c:'Patiala',d:'Patiala',st:'Punjab',p:'147101'},
+  5:{h:'33',s:'Phulkian Enclave',w:'Ward 5',c:'Patiala',d:'Patiala',st:'Punjab',p:'147001'},
+  6:{h:'88',s:'Urban Estate Phase 2',w:'Phase 2',c:'Jalandhar',d:'Jalandhar',st:'Punjab',p:'144001'},
+  7:{h:'1',s:'Old Bus Stand Road',w:'Ghanaur',c:'Patiala',d:'Patiala',st:'Punjab',p:'147301'},
+  8:{h:'91',s:'Canal Road',w:'Samana',c:'Patiala',d:'Patiala',st:'Punjab',p:'147101'},
+  9:{h:'40',s:'Haibowal Kalan',w:'Ward 22',c:'Ludhiana',d:'Ludhiana',st:'Punjab',p:'141001'},
+  10:{h:'2',s:'Sector 7 Market',w:'Sector 7',c:'Chandigarh',d:'Chandigarh',st:'UT',p:'160019'},
+  11:{h:'77',s:'Bathinda Bypass',w:'Ward 9',c:'Bathinda',d:'Bathinda',st:'Punjab',p:'151001'},
+  12:{h:'12',s:'Sadar Bazaar',w:'Sadar',c:'Amritsar',d:'Amritsar',st:'Punjab',p:'143001'},
+  13:{h:'55-C',s:'Lawrence Road',w:'Ward 14',c:'Amritsar',d:'Amritsar',st:'Punjab',p:'143001'},
+  14:{h:'3',s:'Village Dhablan',w:'Dhablan',c:'Patiala',d:'Patiala',st:'Punjab',p:'140407'},
+  15:{h:'18',s:'Tripuri',w:'Ward 6',c:'Patiala',d:'Patiala',st:'Punjab',p:'147001'},
+  16:{h:'64',s:'Majitha Road',w:'Ward 2',c:'Amritsar',d:'Amritsar',st:'Punjab',p:'143001'},
+  17:{h:'9',s:'Sunam Road',w:'Ward 1',c:'Sangrur',d:'Sangrur',st:'Punjab',p:'148001'},
+  18:{h:'30',s:'Doraha Colony',w:'Doraha',c:'Ludhiana',d:'Ludhiana',st:'Punjab',p:'141421'},
+};
+
+const HOLDERS=[
+  {id:'HLD-001',name:'Ramesh Kumar',     aa:'234512348901',fam:4,cat:'BPL',ph:'9814400101',card:'RC-2022-0001',addr:1, active:'Y',reg:'01 Jan 2022'},
+  {id:'HLD-002',name:'Sunita Devi',      aa:'345623459012',fam:3,cat:'APL',ph:'9814400102',card:'RC-2022-0002',addr:2, active:'Y',reg:'15 Jun 2022'},
+  {id:'HLD-003',name:'Arjun Singh',      aa:'456734560123',fam:6,cat:'AAY',ph:'9814400103',card:'RC-2021-0003',addr:3, active:'Y',reg:'10 Jan 2021'},
+  {id:'HLD-004',name:'Priya Sharma',     aa:'567845671234',fam:2,cat:'BPL',ph:'9814400104',card:'RC-2023-0004',addr:4, active:'Y',reg:'01 Mar 2023'},
+  {id:'HLD-005',name:'Mohan Lal',        aa:'678956782345',fam:5,cat:'APL',ph:'9814400105',card:'RC-2023-0005',addr:5, active:'N',reg:'01 Jul 2023'},
+  {id:'HLD-006',name:'Gurpreet Kaur',    aa:'789067893456',fam:4,cat:'AAY',ph:'9814400106',card:'RC-2020-0006',addr:6, active:'Y',reg:'15 Aug 2020'},
+  {id:'HLD-007',name:'Deepak Verma',     aa:'890178904567',fam:3,cat:'BPL',ph:'9814400107',card:'RC-2024-0007',addr:7, active:'Y',reg:'20 Jan 2024'},
+  {id:'HLD-008',name:'Kavita Rani',      aa:'901289015678',fam:2,cat:'APL',ph:'9814400108',card:'RC-2022-0008',addr:8, active:'Y',reg:'05 Nov 2022'},
+  {id:'HLD-009',name:'Baljit Singh',     aa:'012390126789',fam:7,cat:'AAY',ph:'9814400109',card:'RC-2023-0009',addr:9, active:'Y',reg:'10 May 2023'},
+  {id:'HLD-010',name:'Meena Devi',       aa:'123401237890',fam:4,cat:'BPL',ph:'9814400110',card:'RC-2021-0010',addr:10,active:'Y',reg:'25 Sep 2021'},
+  {id:'HLD-011',name:'Ranjit Kumar',     aa:'234501239001',fam:3,cat:'APL',ph:'9814400111',card:'RC-2022-0011',addr:11,active:'Y',reg:'14 Feb 2022'},
+  {id:'HLD-012',name:'Sonia Bhatia',     aa:'345623459123',fam:5,cat:'BPL',ph:'9814400112',card:'RC-2024-0012',addr:12,active:'Y',reg:'01 Jun 2024'},
+  {id:'HLD-013',name:'Harinder Pal',     aa:'456734560234',fam:6,cat:'AAY',ph:'9814400113',card:'RC-2023-0013',addr:13,active:'Y',reg:'19 Aug 2023'},
+  {id:'HLD-014',name:'Rajwinder Kaur',   aa:'567845671345',fam:2,cat:'APL',ph:'9814400114',card:'RC-2022-0014',addr:14,active:'N',reg:'01 Dec 2022'},
+  {id:'HLD-015',name:'Sukhwinder Singh', aa:'678956782456',fam:4,cat:'BPL',ph:'9814400115',card:'RC-2021-0015',addr:15,active:'Y',reg:'07 Mar 2021'},
+  {id:'HLD-016',name:'Manpreet Kaur',    aa:'789067893567',fam:3,cat:'AAY',ph:'9814400116',card:'RC-2024-0016',addr:16,active:'Y',reg:'28 Feb 2024'},
+  {id:'HLD-017',name:'Kulwant Singh',    aa:'890178904678',fam:5,cat:'BPL',ph:'9814400117',card:'RC-2023-0017',addr:17,active:'Y',reg:'10 Oct 2023'},
+  {id:'HLD-018',name:'Parmjit Devi',     aa:'901289015789',fam:4,cat:'APL',ph:'9814400118',card:'RC-2022-0018',addr:18,active:'Y',reg:'22 Sep 2022'},
+];
+
+const CARDS=[
+  {id:'RC-2022-0001',cat:'BPL',iss:'01 Apr 2022',exp:'31 Mar 2027',st:'Active'},
+  {id:'RC-2022-0002',cat:'APL',iss:'15 Jun 2022',exp:'14 Jun 2027',st:'Active'},
+  {id:'RC-2021-0003',cat:'AAY',iss:'10 Jan 2021',exp:'09 Jan 2026',st:'Expired'},
+  {id:'RC-2023-0004',cat:'BPL',iss:'01 Mar 2023',exp:'28 Feb 2028',st:'Active'},
+  {id:'RC-2023-0005',cat:'APL',iss:'01 Jul 2023',exp:'30 Jun 2028',st:'Active'},
+  {id:'RC-2020-0006',cat:'AAY',iss:'15 Aug 2020',exp:'14 Aug 2025',st:'Expired'},
+  {id:'RC-2024-0007',cat:'BPL',iss:'20 Jan 2024',exp:'19 Jan 2029',st:'Active'},
+  {id:'RC-2022-0008',cat:'APL',iss:'05 Nov 2022',exp:'04 Nov 2027',st:'Active'},
+  {id:'RC-2023-0009',cat:'AAY',iss:'10 May 2023',exp:'09 May 2028',st:'Active'},
+  {id:'RC-2021-0010',cat:'BPL',iss:'25 Sep 2021',exp:'24 Sep 2026',st:'Active'},
+  {id:'RC-2022-0011',cat:'APL',iss:'14 Feb 2022',exp:'13 Feb 2027',st:'Active'},
+  {id:'RC-2024-0012',cat:'BPL',iss:'01 Jun 2024',exp:'31 May 2029',st:'Active'},
+  {id:'RC-2023-0013',cat:'AAY',iss:'19 Aug 2023',exp:'18 Aug 2028',st:'Active'},
+  {id:'RC-2022-0014',cat:'APL',iss:'01 Dec 2022',exp:'30 Nov 2027',st:'Suspended'},
+  {id:'RC-2021-0015',cat:'BPL',iss:'07 Mar 2021',exp:'06 Mar 2026',st:'Active'},
+  {id:'RC-2024-0016',cat:'AAY',iss:'28 Feb 2024',exp:'27 Feb 2029',st:'Active'},
+  {id:'RC-2023-0017',cat:'BPL',iss:'10 Oct 2023',exp:'09 Oct 2028',st:'Active'},
+  {id:'RC-2022-0018',cat:'APL',iss:'22 Sep 2022',exp:'21 Sep 2027',st:'Active'},
+];
+
+const USERS=[
+  {id:'USR-ADM-01',un:'admin_patiala', pw:'admin123', role:'Admin',  lnk:null,     lk:'N',hash:'3d4f2bf07dc1be38…',salt:'saltADM01x',cr:'01 Jan 2022'},
+  {id:'USR-ADM-02',un:'admin_ludhiana',pw:'admin123', role:'Admin',  lnk:null,     lk:'N',hash:'9b71d224bd62f378…',salt:'saltADM02x',cr:'01 Jan 2022'},
+  {id:'USR-DLR-01',un:'hkwalia',       pw:'dealer123',role:'Dealer', lnk:'DLR-001',lk:'N',hash:'a94a8fe5ccb19ba6…',salt:'8f14e45fcc',cr:'01 Apr 2015'},
+  {id:'USR-DLR-02',un:'vverma',        pw:'dealer123',role:'Dealer', lnk:'DLR-002',lk:'N',hash:'b6589fc6ab0dc82c…',salt:'c4ca4238a0',cr:'15 Aug 2012'},
+  {id:'USR-DLR-03',un:'gsingh',        pw:'dealer123',role:'Dealer', lnk:'DLR-003',lk:'N',hash:'356a192b7913b04c…',salt:'1679091c5a',cr:'10 Jan 2018'},
+  {id:'USR-DLR-04',un:'akaur',         pw:'dealer123',role:'Dealer', lnk:'DLR-004',lk:'N',hash:'da4b9237bacccdf1…',salt:'8277e0910d',cr:'20 Jun 2016'},
+  {id:'USR-DLR-05',un:'rbhatia',       pw:'dealer123',role:'Dealer', lnk:'DLR-005',lk:'N',hash:'77de68daecd823ba…',salt:'eccbc87e4b',cr:'05 Sep 2019'},
+  {id:'USR-DLR-06',un:'npsingh',       pw:'dealer123',role:'Dealer', lnk:'DLR-006',lk:'Y',hash:'1b6453892473a467…',salt:'c4ca4238a1',cr:'12 Mar 2017'},
+  {id:'USR-CIT-01',un:'ramesh_k',      pw:'citizen123',role:'Citizen',lnk:'HLD-001',lk:'N',hash:'adc83b19e793491b…',salt:'saltC01xx',cr:'01 Jan 2022'},
+  {id:'USR-CIT-02',un:'sunita_d',      pw:'citizen123',role:'Citizen',lnk:'HLD-002',lk:'N',hash:'da39a3ee5e6b4b0d…',salt:'saltC02xx',cr:'15 Jun 2022'},
+  {id:'USR-CIT-03',un:'arjun_s',       pw:'citizen123',role:'Citizen',lnk:'HLD-003',lk:'N',hash:'e3b0c44298fc1c14…',salt:'saltC03xx',cr:'10 Jan 2021'},
+  {id:'USR-CIT-04',un:'priya_sh',      pw:'citizen123',role:'Citizen',lnk:'HLD-004',lk:'N',hash:'84a516841ba77a5b…',salt:'saltC04xx',cr:'01 Mar 2023'},
+  {id:'USR-CIT-05',un:'mohan_l',       pw:'citizen123',role:'Citizen',lnk:'HLD-005',lk:'Y',hash:'f1d2d2f924e986ac…',salt:'saltC05xx',cr:'01 Jul 2023'},
+  {id:'USR-CIT-06',un:'gurpreet_k',    pw:'citizen123',role:'Citizen',lnk:'HLD-006',lk:'N',hash:'7c4a8d09ca3762af…',salt:'saltC06xx',cr:'15 Aug 2020'},
+  {id:'USR-CIT-07',un:'deepak_v',      pw:'citizen123',role:'Citizen',lnk:'HLD-007',lk:'N',hash:'e358efa489f58062…',salt:'saltC07xx',cr:'20 Jan 2024'},
+  {id:'USR-CIT-08',un:'kavita_r',      pw:'citizen123',role:'Citizen',lnk:'HLD-008',lk:'N',hash:'b14a7b8059d9c055…',salt:'saltC08xx',cr:'05 Nov 2022'},
+  {id:'USR-CIT-09',un:'baljit_s',      pw:'citizen123',role:'Citizen',lnk:'HLD-009',lk:'N',hash:'eccbc87e4b5ce2fe…',salt:'saltC09xx',cr:'10 May 2023'},
+  {id:'USR-CIT-10',un:'meena_d',       pw:'citizen123',role:'Citizen',lnk:'HLD-010',lk:'N',hash:'c4ca4238a0b92382…',salt:'saltC10xx',cr:'25 Sep 2021'},
+];
+
+const DIST=[
+  {txn:'TXN-2026-0001',hld:'HLD-001',sh:'SHP-001',cm:'Rice',       dlr:'DLR-001',qty:5.00, dt:'03 Mar 2026',st:'Completed'},
+  {txn:'TXN-2026-0002',hld:'HLD-001',sh:'SHP-001',cm:'Wheat',      dlr:'DLR-001',qty:3.00, dt:'03 Mar 2026',st:'Completed'},
+  {txn:'TXN-2026-0003',hld:'HLD-002',sh:'SHP-001',cm:'Rice',       dlr:'DLR-001',qty:3.00, dt:'05 Mar 2026',st:'Completed'},
+  {txn:'TXN-2026-0004',hld:'HLD-003',sh:'SHP-001',cm:'Rice',       dlr:'DLR-001',qty:7.00, dt:'06 Mar 2026',st:'Completed'},
+  {txn:'TXN-2026-0005',hld:'HLD-004',sh:'SHP-002',cm:'Rice',       dlr:'DLR-002',qty:5.00, dt:'08 Mar 2026',st:'Completed'},
+  {txn:'TXN-2026-0006',hld:'HLD-004',sh:'SHP-002',cm:'Wheat',      dlr:'DLR-002',qty:3.00, dt:'08 Mar 2026',st:'Completed'},
+  {txn:'TXN-2026-0007',hld:'HLD-006',sh:'SHP-002',cm:'Rice',       dlr:'DLR-002',qty:99.00,dt:'09 Mar 2026',st:'Flagged'},
+  {txn:'TXN-2026-0008',hld:'HLD-007',sh:'SHP-003',cm:'Rice',       dlr:'DLR-003',qty:5.00, dt:'10 Mar 2026',st:'Completed'},
+  {txn:'TXN-2026-0009',hld:'HLD-008',sh:'SHP-003',cm:'Wheat',      dlr:'DLR-003',qty:2.00, dt:'11 Mar 2026',st:'Completed'},
+  {txn:'TXN-2026-0010',hld:'HLD-009',sh:'SHP-004',cm:'Rice',       dlr:'DLR-004',qty:7.00, dt:'12 Mar 2026',st:'Completed'},
+  {txn:'TXN-2026-0011',hld:'HLD-010',sh:'SHP-004',cm:'Rice',       dlr:'DLR-004',qty:5.00, dt:'13 Mar 2026',st:'Completed'},
+  {txn:'TXN-2026-0012',hld:'HLD-012',sh:'SHP-005',cm:'Rice',       dlr:'DLR-005',qty:5.00, dt:'14 Mar 2026',st:'Completed'},
+  {txn:'TXN-2026-0013',hld:'HLD-013',sh:'SHP-005',cm:'Wheat',      dlr:'DLR-005',qty:5.00, dt:'14 Mar 2026',st:'Completed'},
+  {txn:'TXN-2026-0014',hld:'HLD-015',sh:'SHP-001',cm:'Sugar',      dlr:'DLR-001',qty:1.00, dt:'15 Mar 2026',st:'Completed'},
+  {txn:'TXN-2026-0015',hld:'HLD-016',sh:'SHP-002',cm:'Mustard Oil',dlr:'DLR-002',qty:1.50, dt:'16 Mar 2026',st:'Completed'},
+  {txn:'TXN-2026-0016',hld:'HLD-017',sh:'SHP-003',cm:'Rice',       dlr:'DLR-003',qty:5.00, dt:'17 Mar 2026',st:'Completed'},
+  {txn:'TXN-2026-0017',hld:'HLD-018',sh:'SHP-004',cm:'Wheat',      dlr:'DLR-004',qty:2.00, dt:'18 Mar 2026',st:'Completed'},
+  {txn:'TXN-2026-0018',hld:'HLD-011',sh:'SHP-005',cm:'Rice',       dlr:'DLR-005',qty:3.00, dt:'19 Mar 2026',st:'Completed'},
+  {txn:'TXN-2026-0019',hld:'HLD-007',sh:'SHP-001',cm:'Wheat',      dlr:'DLR-001',qty:3.00, dt:'Current',    st:'Completed'},
+];
+
+const STOCK=[
+  {sh:'SHP-001',sn:'Walia FPS',        cm:'Rice',        rv:220,dist:95, thr:50},
+  {sh:'SHP-001',sn:'Walia FPS',        cm:'Wheat',       rv:160,dist:70, thr:30},
+  {sh:'SHP-001',sn:'Walia FPS',        cm:'Sugar',       rv:55, dist:22, thr:12},
+  {sh:'SHP-001',sn:'Walia FPS',        cm:'Mustard Oil', rv:45, dist:18, thr:10},
+  {sh:'SHP-002',sn:'Verma Depot',      cm:'Rice',        rv:190,dist:110,thr:50},
+  {sh:'SHP-002',sn:'Verma Depot',      cm:'Wheat',       rv:130,dist:80, thr:30},
+  {sh:'SHP-002',sn:'Verma Depot',      cm:'Sugar',       rv:48, dist:30, thr:12},
+  {sh:'SHP-002',sn:'Verma Depot',      cm:'Mustard Oil', rv:38, dist:24, thr:10},
+  {sh:'SHP-003',sn:'Singh General PDS',cm:'Rice',        rv:175,dist:60, thr:50},
+  {sh:'SHP-003',sn:'Singh General PDS',cm:'Wheat',       rv:120,dist:45, thr:30},
+  {sh:'SHP-003',sn:'Singh General PDS',cm:'Sugar',       rv:40, dist:18, thr:12},
+  {sh:'SHP-003',sn:'Singh General PDS',cm:'Mustard Oil', rv:30, dist:10, thr:10},
+  {sh:'SHP-004',sn:'Kaur Kirana',      cm:'Rice',        rv:200,dist:85, thr:50},
+  {sh:'SHP-004',sn:'Kaur Kirana',      cm:'Wheat',       rv:140,dist:60, thr:30},
+  {sh:'SHP-004',sn:'Kaur Kirana',      cm:'Sugar',       rv:50, dist:20, thr:12},
+  {sh:'SHP-004',sn:'Kaur Kirana',      cm:'Mustard Oil', rv:42, dist:15, thr:10},
+  {sh:'SHP-005',sn:'Bhatia Depot',     cm:'Rice',        rv:165,dist:75, thr:50},
+  {sh:'SHP-005',sn:'Bhatia Depot',     cm:'Wheat',       rv:115,dist:55, thr:30},
+  {sh:'SHP-005',sn:'Bhatia Depot',     cm:'Sugar',       rv:38, dist:15, thr:12},
+  {sh:'SHP-005',sn:'Bhatia Depot',     cm:'Mustard Oil', rv:30, dist:12, thr:10},
+];
+
+const AEVENTS=[
+  {id:1, ts:'2026-03-01 09:00:01',tbl:'rc_user_accounts',op:'LOGIN',      ref:'USR-ADM-01',   by:'admin_patiala', sn:'Login successful',                          fl:'Normal'},
+  {id:2, ts:'2026-03-03 10:12:33',tbl:'rc_distribution', op:'DISTRIBUTE', ref:'TXN-2026-0001',by:'DLR-001',       sn:'holder=HLD-001 comm=1 qty=5 shop=SHP-001',  fl:'Normal'},
+  {id:3, ts:'2026-03-03 10:13:05',tbl:'rc_distribution', op:'DISTRIBUTE', ref:'TXN-2026-0002',by:'DLR-001',       sn:'holder=HLD-001 comm=2 qty=3 shop=SHP-001',  fl:'Normal'},
+  {id:4, ts:'2026-03-05 11:22:10',tbl:'rc_distribution', op:'DISTRIBUTE', ref:'TXN-2026-0003',by:'DLR-001',       sn:'holder=HLD-002 comm=1 qty=3 shop=SHP-001',  fl:'Normal'},
+  {id:5, ts:'2026-03-06 09:55:44',tbl:'rc_distribution', op:'DISTRIBUTE', ref:'TXN-2026-0004',by:'DLR-001',       sn:'holder=HLD-003 comm=1 qty=7 shop=SHP-001',  fl:'Normal'},
+  {id:6, ts:'2026-03-09 14:03:22',tbl:'rc_distribution', op:'DISTRIBUTE', ref:'TXN-2026-0007',by:'DLR-002',       sn:'holder=HLD-006 comm=1 qty=99 shop=SHP-002', fl:'Suspect'},
+  {id:7, ts:'2026-03-09 14:04:00',tbl:'rc_audit_log',    op:'INSERT',     ref:'TXN-2026-0007',by:'TRIGGER',        sn:'trg_flag_fraud_dist: qty=99 > quota(7)',     fl:'Suspect'},
+  {id:8, ts:'2026-03-10 08:30:00',tbl:'rc_complaint',    op:'INSERT',     ref:'CMP-001',       by:'USR-CIT-03',    sn:'Filed: Short quantity given at SHP-001',     fl:'Normal'},
+  {id:9, ts:'2026-03-12 10:00:00',tbl:'rc_complaint',    op:'UPDATE',     ref:'CMP-004',       by:'admin_patiala', sn:'Status: Pending → Resolved',                 fl:'Normal'},
+  {id:10,ts:'2026-03-14 09:20:00',tbl:'rc_ration_card',  op:'UPDATE',     ref:'RC-2022-0014',  by:'admin_patiala', sn:'card_status: Active → Suspended',            fl:'Normal'},
+  {id:11,ts:'2026-03-15 11:00:00',tbl:'rc_holder',       op:'UPDATE',     ref:'HLD-005',       by:'admin_patiala', sn:'phone_no updated',                           fl:'Normal'},
+  {id:12,ts:'2026-03-19 14:55:00',tbl:'rc_distribution', op:'DISTRIBUTE', ref:'TXN-2026-0018',by:'DLR-005',       sn:'holder=HLD-011 comm=1 qty=3 shop=SHP-005',  fl:'Normal'},
+  {id:13,ts:'2026-03-31 23:59:59',tbl:'SYSTEM',          op:'CHECKPOINT', ref:'CHKPT-2026-03', by:'DBA',           sn:'Monthly checkpoint — March 2026',            fl:'Normal'},
+];
+
+const QUOTA={BPL:{rice:5,wheat:3,sugar:1,oil:1,ker:2},APL:{rice:3,wheat:2,sugar:0.5,oil:0.5,ker:0},AAY:{rice:7,wheat:5,sugar:2,oil:1.5,ker:3}};
+
+/* ── STATE ────────────────────────────────────────── */
+let CU=null,TOK=null,ROLE='Admin';
+let xDist=[],pendApps=[];
+
+/* ── AUTH HELPERS ─────────────────────────────────── */
+function sp(id){
+  ['pn-login','pn-reg-choose','pn-reg-citizen','pn-reg-dealer'].forEach(p=>{
+    const el=document.getElementById(p);if(el)el.style.display=p===id?'':'none';
+  });
+}
+function selRole(el,r){
+  document.querySelectorAll('.rtab').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');ROLE=r;
+  document.getElementById('l-err').style.display='none';
+}
+function togglePw(id,btn){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password';btn.textContent=i.type==='password'?'👁':'🙈';}
+function V(id){return(document.getElementById(id)||{}).value?.trim()||'';}
+
+function doLogin(){
+  const u=V('lu'),p=document.getElementById('lp').value;
+  const er=document.getElementById('l-err');
+  er.style.display='none';
+  const usr=USERS.find(x=>x.un===u&&x.pw===p&&x.role===ROLE);
+  if(!usr){er.style.display='block';return;}
+  if(usr.lk==='Y'){er.style.display='block';er.textContent='Account is locked. Contact Administrator.';return;}
+  CU=usr;
+  TOK='sess_'+[...Array(32)].map(()=>Math.random().toString(36)[2]).join('');
+  document.getElementById('auth-wrap').style.display='none';
+  document.getElementById('main-app').style.display='flex';
+  initApp();
+}
+function doLogout(){
+  CU=null;TOK=null;
+  document.getElementById('auth-wrap').style.display='flex';
+  document.getElementById('main-app').style.display='none';
+  sp('pn-login');
+  document.getElementById('lu').value='';
+  document.getElementById('lp').value='';
+  document.getElementById('l-err').style.display='none';
+  document.getElementById('l-err').textContent='Invalid credentials or wrong role selected.';
+}
+
+/* ── CITIZEN REGISTRATION ─────────────────────────── */
+let cStep_n=1;
+function cStep(n){
+  if(n>cStep_n){
+    if(cStep_n===1){
+      if(!V('cn')||!V('ca')||!V('cph')||!V('cfm')||!V('ccat')){toast('Fill all required fields.');return;}
+      if(!/^\d{12}$/.test(V('ca'))){toast('Aadhaar must be exactly 12 digits.');return;}
+    }
+    if(cStep_n===2){
+      if(!V('cst')||!V('ccy')||!V('cdist')||!V('cpin')){toast('Fill all required address fields.');return;}
+      if(!/^\d{6}$/.test(V('cpin'))){toast('Pincode must be 6 digits.');return;}
+    }
+  }
+  cStep_n=n;
+  [1,2,3].forEach(i=>{
+    document.getElementById('cst'+i).style.display=i===n?'':'none';
+    const s=document.getElementById('cs'+i);
+    s.className='step'+(i<n?' done':i===n?' active':'');
+  });
+}
+function submitCitizen(){
+  const un=V('cun'),pw=document.getElementById('cpw').value,pw2=document.getElementById('cpw2').value,jus=V('cjus');
+  const er=document.getElementById('c-err');er.style.display='none';
+  if(!un||!pw||!jus){er.style.display='block';er.textContent='All fields are required.';return;}
+  if(pw.length<8){er.style.display='block';er.textContent='Password must be at least 8 characters.';return;}
+  if(pw!==pw2){er.style.display='block';er.textContent='Passwords do not match.';return;}
+  if(USERS.find(u=>u.un===un)){er.style.display='block';er.textContent='Username already taken. Choose another.';return;}
+  pendApps.push({type:'Citizen',name:V('cn'),un,
+    data:{aa:V('ca'),ph:V('cph'),cat:V('ccat'),fam:V('cfm'),dob:V('cdob'),
+          hs:V('chs'),street:V('cst'),city:V('ccy'),dist:V('cdist'),state:V('cstate'),pin:V('cpin'),jus},
+    ts:new Date().toLocaleString('en-IN'),status:'Pending'});
+  updateBadge();
+  alert('✅ Application submitted!\n\nYour Citizen registration is pending Admin approval.\nUsername: '+un+'\n\nYou will be notified when your account is activated.');
+  sp('pn-login');
+  cStep_n=1;cStep(1);
+}
+
+/* ── DEALER REGISTRATION ──────────────────────────── */
+let dStep_n=1;
+function dStep(n){
+  if(n>dStep_n){
+    if(dStep_n===1){
+      if(!V('dn')||!V('dph')||!V('did')){toast('Fill all required fields.');return;}
+    }
+    if(dStep_n===2){
+      if(!V('dshn')||!V('daddr')||!V('ddist')||!V('dexp')){toast('Fill all required shop details.');return;}
+    }
+  }
+  dStep_n=n;
+  [1,2,3].forEach(i=>{
+    document.getElementById('dst'+i).style.display=i===n?'':'none';
+    const s=document.getElementById('ds'+i);
+    s.className='step'+(i<n?' done':i===n?' active':'');
+  });
+}
+function submitDealer(){
+  const un=V('dun'),pw=document.getElementById('dpw').value,pw2=document.getElementById('dpw2').value;
+  const er=document.getElementById('d-err');er.style.display='none';
+  if(!un||!pw){er.style.display='block';er.textContent='All fields are required.';return;}
+  if(pw.length<8){er.style.display='block';er.textContent='Password must be at least 8 characters.';return;}
+  if(pw!==pw2){er.style.display='block';er.textContent='Passwords do not match.';return;}
+  if(USERS.find(u=>u.un===un)){er.style.display='block';er.textContent='Username already taken.';return;}
+  pendApps.push({type:'Dealer',name:V('dn'),un,
+    data:{ph:V('dph'),id:V('did'),lic:V('dlic')||'—',shop:V('dshn'),addr:V('daddr'),dist:V('ddist'),quota:V('dquo')||'Not specified',exp:V('dexp')},
+    ts:new Date().toLocaleString('en-IN'),status:'Pending'});
+  updateBadge();
+  alert('✅ Application submitted!\n\nYour Dealer registration is pending Admin verification.\nUsername: '+un+'\n\nYour identity and FPS licence will be physically verified before activation.');
+  sp('pn-login');
+  dStep_n=1;dStep(1);
+}
+
+/* ── APP INIT ─────────────────────────────────────── */
+function initApp(){
+  const role=CU.role;
+  document.getElementById('tb-un').textContent=CU.un;
+  const rp=document.getElementById('tb-rp');
+  rp.textContent=role;rp.className='rpill rp-'+role.toLowerCase();
+
+  document.getElementById('nav-admin').style.display  =role==='Admin'  ?'':'none';
+  document.getElementById('nav-dealer').style.display =role==='Dealer' ?'':'none';
+  document.getElementById('nav-audit').style.display  =role==='Admin'  ?'':'none';
+  document.getElementById('nav-citizen').style.display=role==='Citizen'?'':'none';
+
+  document.getElementById('da-admin').style.display  =role==='Admin'  ?'':'none';
+  document.getElementById('da-dealer').style.display =role==='Dealer' ?'':'none';
+  document.getElementById('da-citizen').style.display=role==='Citizen'?'':'none';
+
+  if(role==='Citizen') fillCitizenDash();
+
+  // Stock bars (admin)
+  if(role==='Admin'){
+    const el=document.getElementById('dash-stock-bars');
+    const sample=STOCK.slice(0,6);
+    el.innerHTML=sample.map(s=>{
+      const pct=Math.round(s.dist/s.rv*100);
+      const cls=pct>80?'pg-a':pct>90?'pg-r':'pg-t';
+      return`<div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+          <span>${s.sn} — ${s.cm}</span><span style="color:var(--text3)">${s.dist}/${s.rv}</span>
+        </div>
+        <div class="pw-b"><div class="pw-i ${cls}" style="width:${pct}%"></div></div>
+      </div>`;
+    }).join('');
+  }
+
+  // Token display
+  const now=new Date(),exp=new Date(now.getTime()+7200000);
+  document.getElementById('tok-val').textContent=TOK;
+  document.getElementById('tok-iss').textContent=now.toLocaleString('en-IN');
+  document.getElementById('tok-exp').textContent=exp.toLocaleString('en-IN');
+
+  updateBadge();
+  renderAll();
+  gp('dashboard',document.querySelector('.ni.on'));
+}
+
+function fillCitizenDash(){
+  const h=HOLDERS.find(x=>x.id===CU.lnk);if(!h)return;
+  const c=CARDS.find(x=>x.id===h.card),q=QUOTA[h.cat]||{};
+  document.getElementById('cit-dname').textContent=h.name;
+  document.getElementById('cit-dsub').textContent=h.id+' · Registered: '+h.reg;
+  document.getElementById('cit-dcat').textContent=h.cat;
+  document.getElementById('cit-dfam').textContent=h.fam+' family members';
+  document.getElementById('cit-dcard').textContent=h.card;
+  document.getElementById('cit-dcardst').textContent=c?c.st+' · Expiry: '+c.exp:'—';
+  document.getElementById('cit-drice').textContent=q.rice||'—';
+  document.getElementById('cit-dwheat').textContent=q.wheat||'—';
+}
+
+/* ── NAVIGATION ───────────────────────────────────── */
+function gp(id,el){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  const pg=document.getElementById('pg-'+id);if(pg)pg.classList.add('on');
+  if(el)el.classList.add('on');
+  if(id==='approvals')rApprovals();
+  if(id==='my-profile')rProfile();
+}
+
+/* ── BADGE HELPERS ────────────────────────────────── */
+function catB(c){const m={BPL:'b-green',APL:'b-teal',AAY:'b-amber'};return`<span class="badge ${m[c]||'b-grey'}">${c}</span>`;}
+function stB(s){const m={Active:'b-green',Completed:'b-green',Expired:'b-red',Suspended:'b-amber',Flagged:'b-red',Open:'b-red',Resolved:'b-green','Under Review':'b-amber',Normal:'b-green',Suspect:'b-amber','Confirmed Fraud':'b-red'};return`<span class="badge ${m[s]||'b-grey'}">${s}</span>`;}
+function maskA(a){return'XXXX-XXXX-'+a.slice(-4);}
+
+/* ── RENDER ALL ───────────────────────────────────── */
+function renderAll(){rHolders();rCards();rDist();rStock();rAudit();rUsers();}
+
+/* HOLDERS */
+function fHolders(q){
+  const cat=document.getElementById('h-cat')?.value||'';
+  const st=document.getElementById('h-st')?.value||'';
+  const sq=q.toLowerCase();
+  const rows=HOLDERS.filter(h=>{
+    const mq=!sq||h.name.toLowerCase().includes(sq)||h.id.includes(sq)||h.aa.includes(sq)||h.ph.includes(sq);
+    const mc=!cat||h.cat===cat;
+    const ms=!st||h.active===st;
+    return mq&&mc&&ms;
+  });
+  renderHolderRows(CU?.role==='Citizen'?rows.filter(h=>h.id===CU.lnk):rows);
+}
+function rHolders(){
+  let rows=HOLDERS;
+  if(CU?.role==='Citizen')rows=rows.filter(h=>h.id===CU.lnk);
+  renderHolderRows(rows);
+}
+function renderHolderRows(rows){
+  const tb=document.getElementById('htb');if(!tb)return;
+  tb.innerHTML=rows.map(h=>{
+    const a=ADDR[h.addr]||{};
+    const q=QUOTA[h.cat]||{};
+    const dim=h.active==='N'?'row-dim':'';
+    return`<tr class="xtr ${dim}" onclick="toggleX('x-${h.id}',this)">
+      <td style="color:var(--text3);font-size:11px;font-weight:700" id="arr-${h.id}">▸</td>
+      <td class="mono">${h.id}</td>
+      <td><strong>${h.name}</strong></td>
+      <td class="mono" style="color:var(--text3)">${maskA(h.aa)}</td>
+      <td>${catB(h.cat)}</td>
+      <td>${h.fam}</td>
+      <td>${h.ph}</td>
+      <td class="mono" style="font-size:12px">${h.card}</td>
+      <td style="font-size:12px;color:var(--text3)">${a.c||'—'}, ${a.d||'—'}</td>
+      <td>${h.active==='Y'?'<span class="badge b-green">Active</span>':'<span class="badge b-red">Inactive</span>'}</td>
+    </tr>
+    <tr class="xrow" id="x-${h.id}">
+      <td colspan="10" class="xcell">
+        <div class="g4">
+          <div>
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px">Identity Details</div>
+            <div style="font-size:13px;line-height:2"><strong>Holder ID:</strong> <span class="mono">${h.id}</span><br><strong>Aadhaar:</strong> <span class="mono">${maskA(h.aa)}</span><br><strong>Registered:</strong> ${h.reg}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px">Contact &amp; Family</div>
+            <div style="font-size:13px;line-height:2"><strong>Phone:</strong> ${h.ph}<br><strong>Family Size:</strong> ${h.fam} members<br><strong>Category:</strong> ${catB(h.cat)}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px">Full Address</div>
+            <div style="font-size:13px;line-height:2">${a.h?a.h+', ':''}${a.s||''}<br>${a.c||''}, ${a.d||''}<br>${a.st||''} — ${a.p||''}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px">Monthly Entitlement</div>
+            <div style="font-size:13px;line-height:2">Rice: <strong>${q.rice} kg</strong><br>Wheat: <strong>${q.wheat} kg</strong><br>Sugar: <strong>${q.sugar} kg</strong> &nbsp;|&nbsp; Oil: <strong>${q.oil} L</strong></div>
+          </div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+function toggleX(id,tr){
+  const row=document.getElementById(id);if(!row)return;
+  const open=row.classList.contains('open');
+  document.querySelectorAll('.xrow').forEach(r=>r.classList.remove('open'));
+  document.querySelectorAll('[id^="arr-"]').forEach(a=>a.textContent='▸');
+  if(!open){
+    row.classList.add('open');
+    const arr=tr.querySelector('td:first-child');if(arr)arr.textContent='▾';
+  }
+}
+
+/* CARDS */
+function rCards(){
+  const tb=document.getElementById('ctb');if(!tb)return;
+  tb.innerHTML=CARDS.map(c=>{
+    const h=HOLDERS.find(x=>x.card===c.id);
+    return`<tr><td class="mono">${c.id}</td><td>${h?h.name:'—'}</td><td>${catB(c.cat)}</td><td>${c.iss}</td><td>${c.exp}</td><td>${stB(c.st)}</td></tr>`;
+  }).join('');
+}
+
+/* DISTRIBUTIONS */
+function rDist(){
+  const tb=document.getElementById('dtb');if(!tb)return;
+  let rows=[...DIST,...xDist];
+  if(CU?.role==='Citizen')rows=rows.filter(d=>d.hld===CU.lnk);
+  if(CU?.role==='Dealer') rows=rows.filter(d=>d.dlr===CU.lnk);
+  tb.innerHTML=rows.map(d=>`<tr class="${d.st==='Flagged'?'row-flag':''}">
+    <td class="mono" style="font-size:12px">${d.txn}</td>
+    <td>${d.hld}</td><td>${d.sh}</td><td>${d.cm}</td><td>${d.dlr}</td>
+    <td><strong>${d.qty.toFixed(2)}</strong></td><td>${d.dt}</td><td>${stB(d.st)}</td>
+  </tr>`).join('');
+}
+
+/* STOCK */
+function rStock(){
+  const tb=document.getElementById('sktb');if(!tb)return;
+  tb.innerHTML=STOCK.map(s=>{
+    const rem=s.rv-s.dist,pct=Math.round(s.dist/s.rv*100),low=rem<s.thr;
+    const cls=pct>80?'pg-a':pct>90?'pg-r':'pg-t';
+    return`<tr class="${low?'row-flag':''}">
+      <td>${s.sn}</td><td>${s.cm}</td><td>${s.rv}</td><td>${s.dist}</td>
+      <td><strong>${rem}</strong></td><td>${s.thr}</td>
+      <td><div class="pw-b"><div class="pw-i ${cls}" style="width:${pct}%"></div></div><div style="font-size:11px;color:var(--text3);margin-top:2px">${pct}%</div></td>
+      <td>${low?'<span class="badge b-red">LOW</span>':'<span class="badge b-green">OK</span>'}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* AUDIT */
+function rAudit(){
+  const op=document.getElementById('af-op')?.value||'';
+  const fl=document.getElementById('af-fl')?.value||'';
+  let ev=AEVENTS;
+  if(op)ev=ev.filter(e=>e.op===op);
+  if(fl)ev=ev.filter(e=>e.fl===fl);
+  const tb=document.getElementById('atb');if(!tb)return;
+  tb.innerHTML=ev.map(e=>`<tr class="${e.fl!=='Normal'?'row-flag':''}">
+    <td class="mono">${e.id}</td>
+    <td class="mono" style="font-size:11px;white-space:nowrap">${e.ts}</td>
+    <td class="mono" style="font-size:11px">${e.tbl}</td>
+    <td><span class="badge b-teal">${e.op}</span></td>
+    <td class="mono" style="font-size:11.5px">${e.ref}</td>
+    <td style="font-size:12px">${e.by}</td>
+    <td style="font-size:11px;color:var(--text3);max-width:190px;white-space:normal">${e.sn}</td>
+    <td>${stB(e.fl)}</td>
+  </tr>`).join('');
+}
+
+/* USERS */
+function rUsers(){
+  const tb=document.getElementById('utb');if(!tb)return;
+  tb.innerHTML=USERS.map(u=>`<tr>
+    <td class="mono" style="font-size:12px">${u.id}</td>
+    <td>${u.un}</td>
+    <td><span class="rpill rp-${u.role.toLowerCase()}">${u.role}</span></td>
+    <td class="mono" style="font-size:12px">${u.lnk||'—'}</td>
+    <td><span class="enc">${u.hash}</span></td>
+    <td><span class="enc">${u.salt}</span></td>
+    <td>${u.lk==='Y'?'<span class="badge b-red">Locked</span>':'<span class="badge b-green">Active</span>'}</td>
+    <td style="font-size:12px;color:var(--text3)">${u.cr}</td>
+  </tr>`).join('');
+}
+
+/* APPROVALS */
+function updateBadge(){
+  const n=pendApps.filter(a=>a.status==='Pending').length;
+  const nb=document.getElementById('nb-cnt');
+  if(nb){nb.textContent=n;nb.style.display=n?'inline-block':'none';}
+}
+function rApprovals(){
+  const list=document.getElementById('ap-list');
+  const emp=document.getElementById('ap-empty');
+  if(!list)return;
+  const pend=pendApps.filter(a=>a.status==='Pending');
+  emp.style.display=pend.length?'none':'block';
+  list.innerHTML=pend.map((a,i)=>{
+    const iC=a.type==='Citizen';
+    const idx=pendApps.indexOf(a);
+    const det=iC
+      ?`Aadhaar: XXXX-XXXX-${a.data.aa?.slice(-4)||'????'} &nbsp;·&nbsp; Phone: ${a.data.ph} &nbsp;·&nbsp; Category: ${a.data.cat} &nbsp;·&nbsp; Family: ${a.data.fam} members<br>Address: ${a.data.city}, ${a.data.dist} — ${a.data.pin}<br>Justification: "${a.data.jus}"`
+      :`Phone: ${a.data.ph} &nbsp;·&nbsp; Identity: ${a.data.id} &nbsp;·&nbsp; Existing Licence: ${a.data.lic}<br>Shop: ${a.data.shop}, ${a.data.addr}, ${a.data.dist} &nbsp;·&nbsp; Quota Requested: ${a.data.quota} kg<br>Background: "${a.data.exp}"`;
+    return`<div class="papp ${iC?'pc':'pd'}">
+      <div class="papp-head">
+        <div><span class="badge ${iC?'b-teal':'b-amber'}" style="margin-right:8px">${a.type}</span><strong>${a.name}</strong> <span style="font-size:12px;color:var(--text3)">@${a.un}</span></div>
+        <span class="papp-ts">Applied: ${a.ts}</span>
+      </div>
+      <div class="pmeta">${det}</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-green btn-sm" onclick="approveApp(${idx})">✔ Approve &amp; Activate</button>
+        <button class="btn btn-red btn-sm" onclick="rejectApp(${idx})">✘ Reject</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function approveApp(i){
+  const a=pendApps[i];a.status='Approved';
+  USERS.push({id:'USR-NEW-'+String(USERS.length+1).padStart(2,'0'),un:a.un,pw:'[hashed]',
+    role:a.type,lnk:null,lk:'N',hash:'[sha1_'+a.un+'…]',salt:'[rand_salt]',cr:new Date().toLocaleDateString('en-IN')});
+  AEVENTS.push({id:AEVENTS.length+1,ts:new Date().toLocaleString('en-IN').replace(',',''),
+    tbl:'rc_user_accounts',op:'INSERT',ref:a.un,by:CU.un,sn:`${a.type} account approved: ${a.name}`,fl:'Normal'});
+  updateBadge();rApprovals();rUsers();
+  toast('Account approved and activated for '+a.name+'.');
+}
+function rejectApp(i){
+  const a=pendApps[i];a.status='Rejected';
+  AEVENTS.push({id:AEVENTS.length+1,ts:new Date().toLocaleString('en-IN').replace(',',''),
+    tbl:'rc_user_accounts',op:'UPDATE',ref:a.un,by:CU.un,sn:`Registration rejected: ${a.name}`,fl:'Normal'});
+  updateBadge();rApprovals();
+  toast('Application from '+a.name+' rejected.');
+}
+
+/* PROFILE */
+function rProfile(){
+  const el=document.getElementById('profile-wrap');if(!el)return;
+  const h=HOLDERS.find(x=>x.id===CU.lnk);
+  if(!h){el.innerHTML='<div class="alert a-info"><span>ℹ️</span><span>No holder record is linked to this account.</span></div>';return;}
+  const c=CARDS.find(x=>x.id===h.card),q=QUOTA[h.cat]||{},a=ADDR[h.addr]||{};
+  el.innerHTML=`
+    <div class="pro-hero">
+      <div class="pro-av">👤</div>
+      <div><div class="pro-name">${h.name}</div><div class="pro-sub">${h.id} &nbsp;·&nbsp; ${catB(h.cat)} &nbsp;·&nbsp; Registered: ${h.reg}</div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="ch"><h3>Personal Details</h3></div>
+        <div class="cb"><table><tbody>
+          <tr><td style="color:var(--text3);padding:6px 12px 6px 0;font-size:12px;white-space:nowrap">Holder ID</td><td class="mono">${h.id}</td></tr>
+          <tr><td style="color:var(--text3);padding:6px 12px 6px 0;font-size:12px;white-space:nowrap">Full Name</td><td><strong>${h.name}</strong></td></tr>
+          <tr><td style="color:var(--text3);padding:6px 12px 6px 0;font-size:12px;white-space:nowrap">Aadhaar</td><td class="mono">${maskA(h.aa)}</td></tr>
+          <tr><td style="color:var(--text3);padding:6px 12px 6px 0;font-size:12px;white-space:nowrap">Phone</td><td>${h.ph}</td></tr>
+          <tr><td style="color:var(--text3);padding:6px 12px 6px 0;font-size:12px;white-space:nowrap">Category</td><td>${catB(h.cat)}</td></tr>
+          <tr><td style="color:var(--text3);padding:6px 12px 6px 0;font-size:12px;white-space:nowrap">Family Members</td><td>${h.fam}</td></tr>
+          <tr><td style="color:var(--text3);padding:6px 12px 6px 0;font-size:12px;white-space:nowrap">Status</td><td>${h.active==='Y'?'<span class="badge b-green">Active</span>':'<span class="badge b-red">Inactive</span>'}</td></tr>
+        </tbody></table></div>
+      </div>
+      <div class="card"><div class="ch"><h3>Ration Card &amp; Entitlement</h3></div>
+        <div class="cb"><table><tbody>
+          <tr><td style="color:var(--text3);padding:6px 12px 6px 0;font-size:12px;white-space:nowrap">Card ID</td><td class="mono">${h.card}</td></tr>
+          <tr><td style="color:var(--text3);padding:6px 12px 6px 0;font-size:12px;white-space:nowrap">Card Status</td><td>${c?stB(c.st):'—'}</td></tr>
+          <tr><td style="color:var(--text3);padding:6px 12px 6px 0;font-size:12px;white-space:nowrap">Issue Date</td><td>${c?c.iss:'—'}</td></tr>
+          <tr><td style="color:var(--text3);padding:6px 12px 6px 0;font-size:12px;white-space:nowrap">Expiry Date</td><td>${c?c.exp:'—'}</td></tr>
+          <tr><td style="color:var(--text3);padding:6px 12px 6px 0;font-size:12px;white-space:nowrap">Rice / Month</td><td><strong>${q.rice} kg</strong></td></tr>
+          <tr><td style="color:var(--text3);padding:6px 12px 6px 0;font-size:12px;white-space:nowrap">Wheat / Month</td><td><strong>${q.wheat} kg</strong></td></tr>
+          <tr><td style="color:var(--text3);padding:6px 12px 6px 0;font-size:12px;white-space:nowrap">Sugar / Month</td><td><strong>${q.sugar} kg</strong></td></tr>
+          <tr><td style="color:var(--text3);padding:6px 12px 6px 0;font-size:12px;white-space:nowrap">Mustard Oil / Month</td><td><strong>${q.oil} L</strong></td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+    <div class="card"><div class="ch"><h3>Registered Address</h3></div>
+      <div class="cb" style="font-size:14px;line-height:2">
+        ${a.h?a.h+', ':''}${a.s}${a.w?', '+a.w:''}<br>
+        ${a.c}, ${a.d}, ${a.st} — ${a.p}
+      </div>
+    </div>`;
+}
+
+/* ACTIONS */
+function doRegHolder(){
+  const id=V('rh-id'),nm=V('rh-nm'),aa=V('rh-aa'),ct=V('rh-ct'),fm=V('rh-fm'),cd=V('rh-cd');
+  const res=document.getElementById('rh-res');res.style.display='none';
+  if(!id||!nm||!aa||!ct||!fm||!cd){res.className='alert a-err';res.textContent='ERROR: All required fields must be filled.';res.style.display='block';return;}
+  if(!/^\d{12}$/.test(aa)){res.className='alert a-err';res.textContent='ERROR: Aadhaar must be exactly 12 digits.';res.style.display='block';return;}
+  if(HOLDERS.find(h=>h.aa===aa)){res.className='alert a-err';res.textContent='ERROR: Aadhaar already exists in the system.';res.style.display='block';return;}
+  res.className='alert a-ok';
+  res.innerHTML=`✔ <strong>sp_register_holder executed successfully.</strong><br>Holder <strong>${id}</strong> (${nm}) registered under category <strong>${ct}</strong>.<br>Ration Card <strong>${cd}</strong> issued. Audit entry recorded.`;
+  res.style.display='block';
+  toast('Holder '+id+' registered.');
+}
+function clearRH(){['rh-id','rh-nm','rh-aa','rh-ph','rh-fm','rh-cd','rh-ad'].forEach(x=>{const e=document.getElementById(x);if(e)e.value='';});document.getElementById('rh-ct').value='';document.getElementById('rh-res').style.display='none';}
+
+function doDistribute(){
+  const txn=V('dd-txn'),hld=V('dd-hld'),qty=parseFloat(document.getElementById('dd-qty').value);
+  const sh=document.getElementById('dd-sh').value;
+  const cm={'1':'Rice','2':'Wheat','3':'Sugar','4':'Mustard Oil'}[document.getElementById('dd-cm').value];
+  const dlr=document.getElementById('dd-dlr').value;
+  const res=document.getElementById('dd-res');res.style.display='none';
+  if(!txn||!hld||!qty||isNaN(qty)){res.className='alert a-err';res.textContent='ERROR: Transaction ID, Holder ID, and Quantity are required.';res.style.display='block';return;}
+  const st=qty>20?'Flagged':'Completed';
+  xDist.push({txn,hld,sh,cm,dlr,qty,dt:'Current',st});rDist();
+  if(st==='Flagged'){
+    res.className='alert a-warn';
+    res.innerHTML=`⚠ <strong>WARNING:</strong> Transaction <strong>${txn}</strong> recorded as <strong>Flagged</strong>.<br>Quantity ${qty} exceeds normal quota. Trigger <code class="mono">trg_flag_fraud_dist</code> fired — audit entry added.`;
+  } else {
+    res.className='alert a-ok';
+    res.innerHTML=`✔ <strong>sp_distribute_ration executed.</strong><br>${qty} ${cm==='Mustard Oil'?'L':'kg'} ${cm} → ${hld} at ${sh}. Stock updated. Audit entry logged.`;
+  }
+  res.style.display='block';toast('Distribution '+txn+' recorded.');
+}
+function clearDD(){['dd-txn','dd-hld','dd-qty'].forEach(x=>{const e=document.getElementById(x);if(e)e.value='';});document.getElementById('dd-res').style.display='none';}
+
+function doComplaint(){
+  const id=V('fc-id'),hld=V('fc-hld'),desc=V('fc-desc');
+  const tp=document.getElementById('fc-tp').value;
+  const res=document.getElementById('fc-res');res.style.display='none';
+  if(!id||!hld||!desc){res.className='alert a-err';res.textContent='ERROR: Complaint ID, Holder ID, and Description are required.';res.style.display='block';return;}
+  res.className='alert a-ok';
+  res.innerHTML=`✔ Complaint <strong>${id}</strong> filed successfully.<br>Type: <strong>${tp}</strong> &nbsp;·&nbsp; Status: <strong>Open</strong><br>Admin will review and respond. Keep your Holder ID for reference.`;
+  res.style.display='block';toast('Complaint '+id+' submitted.');
+}
+
+/* TOAST */
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+/* Enter on login */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.getElementById('auth-wrap')?.style.display!=='none')doLogin();
+});
+</script>
+</body>
+</html>
